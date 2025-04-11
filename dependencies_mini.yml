@@ -1,0 +1,13 @@
+name: dexomics
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.8
+  - r-base
+  - r-tidyverse
+  - bioconductor-summarizedexperiment
+  - bioconductor-rtracklayer
+  - bioconductor-plyranges
+prefix: /home/yi-huang/miniconda3/envs/torch
