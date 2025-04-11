@@ -10,7 +10,7 @@ conda: 24.4.0
 ```
 You can reconstruct the virtual environment following these command lines:
 ```
-git clone <url>
+git clone https://github.com/hmdlab/DExOmics.git
 cd DExOmics
 conda env create -f dependencies_all.yml
 conda activate dexomics
