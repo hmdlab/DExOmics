@@ -19,13 +19,13 @@ conda activate dexomics
 ## 2. Data Sources
 The downloading of the data can be conducted under `/data_download`.  The output data is be stored under `/data/TCGAdata`.
 - Pancancer study
-    - All data are stored under `/data/pancan_data.tar.gz`
+    - All data are stored under `/data/pancan_data.tar.gz`.
 - Cancer-specific study
     - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC.
 
     - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt` files under `/data_download `, and run `bash load_regulator.sh` to download each of them.
 
-    - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/) and put it into `/data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`
+    - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) and put it into `/data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`.
 
 
 ## 3. Proprocessing
