@@ -29,16 +29,17 @@ The downloading of the data can be conducted under `/data_download`.
 
 
 ## 3. Proprocessing and Integration
-- Genomic locations of the interaction data in bed files should be first mapped to local transcript locations, and the data should be then be transfered to sparse matrices by using the following exmaple commands:
-    ```
-    Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/encode_hepg2_promoter" -s "ENCODE"
-    ```
- - For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
-    ```
-    Rscript dea.R LIHC hepg2
-    Rscript data_merge.R LIHC hepg2 TRUE
-    python get_HepG2_genes.py LIHC hepg2
-    ```
-    > Replace the arguments with expected TCGA cancer project and realted cell line. 
+Genomic locations of the interaction data in bed files should be first mapped to local transcript locations, and the data should be then be transfered to sparse matrices by using the following exmaple commands:
+```
+Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/encode_hepg2_promoter" -s "ENCODE"
+```
+
+ For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
+```
+Rscript dea.R LIHC hepg2
+Rscript data_merge.R LIHC hepg2 TRUE
+python get_HepG2_genes.py LIHC hepg2
+```
+> Replace the arguments with expected TCGA cancer project and realted cell line. 
 
 The preprocessed data of cancer-specific study is stored in [canspec_data.tar.gz]()
