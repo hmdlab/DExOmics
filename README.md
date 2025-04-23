@@ -39,15 +39,9 @@ mkdir data/rna_features
 Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "rna" -o "../data/rna_features/encode_hepg2_rna" -s "ENCODE"
 python 02_to_sparse.py ../data/rna_features/encode_hepg2_rna.txt
 ```
-Arguments:
-- b: bed files directory
-- n: size of bins for the genomic features
-- g: path to the GTF file
-- t: input type
-- o: output file
-- s: data source
+Arguments: b - bed files directory; n - size of bins for the genomic features; g - path to the GTF file; t - input type; o - output file; s - data source.
 
-The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
+> The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
 
  For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
 ```
