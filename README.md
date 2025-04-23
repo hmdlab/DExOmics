@@ -33,9 +33,11 @@ Genomic locations of the interaction data in bed files should be first mapped to
 ```
 mkdir data/promoter_features
 Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/promoter_features/encode_hepg2_promoter" -s "ENCODE"
+python 02_to_sparse.py ../data/promoter_features/encode_hepg2_promoter.txt
 
 mkdir data/rna_features
 Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "rna" -o "../data/rna_features/encode_hepg2_rna" -s "ENCODE"
+python 02_to_sparse.py ../data/rna_features/encode_hepg2_rna.txt
 ```
 Arguments:
 - b: bed files directory
