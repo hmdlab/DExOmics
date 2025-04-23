@@ -19,12 +19,12 @@ conda activate dexomics
 ## 2. Data Sources
 The downloading of the data can be conducted under `/data_download`. 
 - Pancancer study
-    - All data are stored in [pancan_data.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link).
+    - All data are stored in [pancan_data.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link).
 - Cancer-specific study
     - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC. The output data is be stored under `/data/TCGAdata`.
 
-    - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt` files under `/data_download `, and run `bash load_regulator.sh` to download each of them.
-
+    - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt.gz` files under `/data_download `, and run `bash load_regulator.sh` to download each of them. The metadata also needs to be also downloaded manually using the link in the first line.
+å
     - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) and put it into `/data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`.
 
 
@@ -41,7 +41,7 @@ python 02_to_sparse.py ../data/rna_features/encode_hepg2_rna.txt
 ```
 Arguments: b - bed files directory; n - size of bins for the genomic features; g - path to the GTF file; t - input type; o - output file; s - data source.
 
-> The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
+> The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
 
  For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
 ```
@@ -50,4 +50,18 @@ Rscript dea.R LIHC hepg2
 Rscript data_merge.R LIHC hepg2 TRUE    # arg3: wether or not merge with encode expression data
 python get_HepG2_genes.py LIHC hepg2
 ```
-> Replace the arguments with expected TCGA cancer project and realted cell line. The preprocessed data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
+> Replace the arguments with expected TCGA cancer project and realted cell line. The preprocessed and integrated data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
+
+## 4. Analysis
+The training and evaluation of the concatenated model using combinations of the omics and regulator data can be done under `/scripts/cancer_specific` using:
+```
+python pretrain.py LIHC hepg2 ../../model_LIHC/concat/ -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.0001
+python eval.py LIHC hepg2 ../../model_LIHC/concat/ -n 100 -reg 0.0001
+```
+Here's an example for interpreting the LIHC model using ExpectedGrad:
+```
+python compute_shap.py -reg 0.0001 LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
+Rscript summarize_SHAP.R LIHC ../../shap/ExpectedGrad_LIHC/
+```
+
+## 5. Citation
