@@ -17,11 +17,11 @@ conda activate dexomics
 ```
 
 ## 2. Data Sources
-The downloading of the data can be conducted under `/data_download`.  The output data is be stored under `/data/TCGAdata`.
+The downloading of the data can be conducted under `/data_download`. 
 - Pancancer study
     - All data are stored in [pancan_data.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link).
 - Cancer-specific study
-    - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC.
+    - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC. The output data is be stored under `/data/TCGAdata`.
 
     - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt` files under `/data_download `, and run `bash load_regulator.sh` to download each of them.
 
@@ -31,7 +31,7 @@ The downloading of the data can be conducted under `/data_download`.  The output
 ## 3. Proprocessing and Integration
 - Genomic locations of the interaction data in bed files should be first mapped to local transcript locations, and the data should be then be transfered to sparse matrices by using the following exmaple commands:
     ```
-    Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/promoter_features/encode_hepg2_promoter" -s "ENCODE"
+    Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/encode_hepg2_promoter" -s "ENCODE"
     ```
  - For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
     ```
