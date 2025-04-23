@@ -31,15 +31,27 @@ The downloading of the data can be conducted under `/data_download`.
 ## 3. Proprocessing and Integration
 Genomic locations of the interaction data in bed files should be first mapped to local transcript locations, and the data should be then be transfered to sparse matrices by using the following exmaple commands:
 ```
-Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/encode_hepg2_promoter" -s "ENCODE"
+mkdir data/promoter_features
+Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/promoter_features/encode_hepg2_promoter" -s "ENCODE"
+
+mkdir data/rna_features
+Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "rna" -o "../data/rna_features/encode_hepg2_rna" -s "ENCODE"
 ```
+Arguments:
+- b: bed files directory
+- n: size of bins for the genomic features
+- g: path to the GTF file
+- t: input type
+- o: output file
+- s: data source
+
+The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
 
  For preprocessing of the TCGA omics data and integraion, run the following under `/scripts/cancer_specific`:
 ```
+Rscript data_observe.R LIHC
 Rscript dea.R LIHC hepg2
-Rscript data_merge.R LIHC hepg2 TRUE
+Rscript data_merge.R LIHC hepg2 TRUE    # arg3: wether or not merge with encode expression data
 python get_HepG2_genes.py LIHC hepg2
 ```
-> Replace the arguments with expected TCGA cancer project and realted cell line. 
-
-The preprocessed data of cancer-specific study is stored in [canspec_data.tar.gz]()
+> Replace the arguments with expected TCGA cancer project and realted cell line. The preprocessed data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/14v4aZD8GmAYYpuaPXOEyj2PEa_GojN9G?usp=drive_link)
