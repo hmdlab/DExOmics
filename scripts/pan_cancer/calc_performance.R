@@ -7,7 +7,7 @@ sample_names = read_delim(paste0("../../", project, "_model/feature_norm_stats.t
   filter(feature_type=="deg_stat")%>%.$feature_name
 geneids = read_delim(paste0("../../metrics/", project, "_geneid.txt.gz"), delim = "\t",col_names = F)%>%.$X1
 
-actual = read_delim(paste0("../../metrics_", project, "_actual.txt.gz"), delim = "\t",col_names = F)
+actual = read_delim(paste0("../../metrics/", project, "_actual.txt.gz"), delim = "\t",col_names = F)
 colnames(actual) = sample_names
 
 prediction = read_delim(paste0("../../metrics/", project, "_prediction.txt.gz"), delim = "\t",col_names = F)
