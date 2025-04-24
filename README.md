@@ -60,7 +60,7 @@ python eval.py LIHC hepg2 ../../model_LIHC/concat/ -n 100 -reg 0.0001
 ```
 Here's an example for interpreting the LIHC model using ExpectedGrad:
 ```
-python compute_shap.py -reg 0.0001 LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
+python compute_shap.py LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
 Rscript summarize_SHAP.R LIHC ../../shap/ExpectedGrad_LIHC/
 ```
 > The trained models are stored [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link).
