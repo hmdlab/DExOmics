@@ -17,14 +17,12 @@ from utils.data_tool import *
 # Create the parser
 parser = argparse.ArgumentParser(description="Training")
 # Add arguments
-parser.add_argument('-reg', '--l2_reg', type=float, help='Regularization parameter')
 parser.add_argument('tcga_cancer', type=str, help='The cancer type from TCGA to be trained')
 parser.add_argument('encode_cell_line', type=str, help='The cell line from ENCODE to be trained')
 parser.add_argument('outloc', type=str, help='The directory to store the output')
 # Parse the arguments
 args = parser.parse_args()
 # Access the arguments
-l2_reg = args.l2_reg
 tcga_cancer = args.tcga_cancer
 encode_cell_line = args.encode_cell_line
 outloc = args.outloc
@@ -35,13 +33,13 @@ data['DEclass'] = data.apply(encode_label, axis=1)     # encode target
 data = data.drop(columns = ['DElabel'], axis = 1)    # delete DElabel
 mRNA_data_loc = '../../data/rna_features/'
 promoter_data_loc = '../../data/promoter_features/'
-with open('../../pretrained/'+tcga_cancer+'/params.json') as f:
+with open('../../pretrained/'+tcga_cancer+'_params.json') as f:
     params = json.load(f)
 
 # Data split --------------------------------------------------
-test_file = '../../pretrained/gene_split'+tcga_cancer+'_test.csv'
-val_file = '../../pretrained/gene_split'+tcga_cancer+'_val.csv'
-train_file = '../../pretrained/gene_split'+tcga_cancer+'_train.csv'
+test_file = '../../pretrained/gene_split/'+tcga_cancer+'_test.csv'
+val_file = '../../pretrained/gene_split/'+tcga_cancer+'_val.csv'
+train_file = '../../pretrained/gene_split/'+tcga_cancer+'_train.csv'
 test = pd.read_csv(test_file,sep="\t",header=0).values[:,0]
 val = pd.read_csv(val_file,sep="\t",header=0).values[:,0]
 train = pd.read_csv(train_file,sep="\t",header=0).values[:,0]
@@ -59,7 +57,7 @@ encode_Y_train, encode_Y_val, encode_Y_test, encode_X_mRNA_train, encode_X_mRNA_
     train_file=train_file,
     val_file=val_file,
     test_file=test_file,
-    outloc='../../model_'+tcga_cancer+'/concat/)
+    outloc='../../model_'+tcga_cancer+'/concat/')
 
 # Standardization 
 # Create a StandardScaler object to normalize the training data
@@ -92,7 +90,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Load best model 
 best_model = ConcatedNet(params)
-best_model.load_state_dict(torch.load('../../model_'+tcga_cancer+'/concat/reg'+str(l2_reg)+'/best_model.pth'))
+best_model.load_state_dict(torch.load('../../model_'+tcga_cancer+'/concat/best_model.pth'))
 best_model.eval()
 # print("Old model structure:", best_model)
 

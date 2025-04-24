@@ -64,9 +64,9 @@ params_file = '../../pretrained/'+tcga_cancer+'_params.json'
 
 
 # Data split -------------------------------------------------------------------
-train_names = '../../pretrained/gene_split'+tcga_cancer+'_train.csv'
-val_names = '../../pretrained/gene_split'+tcga_cancer+'_val.csv'
-test_names = '../../pretrained/gene_split'+tcga_cancer+'_test.csv'
+train_names = '../../pretrained/gene_split/'+tcga_cancer+'_train.csv'
+val_names = '../../pretrained/gene_split/'+tcga_cancer+'_val.csv'
+test_names = '../../pretrained/gene_split/'+tcga_cancer+'_test.csv'
 train = pd.read_csv(train_names,sep="\t",header=0).values[:,0]
 val = pd.read_csv(val_names,sep="\t",header=0).values[:,0]
 

@@ -61,7 +61,7 @@ test_names = '../../pretrained/gene_split/'+project+'_test.csv'
 
 # ENCODE data preparation
 deg_data_file = '../../data/pancan_data/transcriptome/'+project+'_expid.txt'
-y_train, y_val, y_test, x_mRNA_train, x_mRNA_val, x_mRNA_test, x_promoter_train, x_promoter_val, x_promoter_test = prep_ml_data_split(
+y_train, y_val, y_test, x_mRNA_train, x_mRNA_val, x_mRNA_test, x_promoter_train, x_promoter_val, x_promoter_test = pancan_prep_ml_data_split(
     deg_data_file=deg_data_file,
     mRNA_data_loc=mRNA_data_loc,
     promoter_data_loc=promoter_data_loc,
@@ -74,13 +74,13 @@ y_val_numeric = y_val.drop(columns=['Name'])
 y_test_numeric = y_test.drop(columns=['Name'])
 
 # Batch initialization -------------------------------------------------------------------
-train_steps, train_batches = batch_iter(x_mRNA_train.values[:,1],
+train_steps, train_batches = pancan_batch_iter(x_mRNA_train.values[:,1],
                                         x_promoter_train.values[:,1],
                                         y_train_numeric.values,
                                         batch_size=batch_size,
                                         shuffle=True)
 
-val_steps, val_batches = batch_iter(x_mRNA_val.values[:,1],
+val_steps, val_batches = pancan_batch_iter(x_mRNA_val.values[:,1],
                                     x_promoter_val.values[:,1],
                                     y_val_numeric.values,
                                     batch_size=batch_size,
@@ -162,7 +162,7 @@ for epoch in range(num_epochs):
     print('Epoch {}/{}: train loss={:.4f}'.format(epoch+1, num_epochs, epoch_loss))
     
     # Evaluate the finally updated model from training on the val set
-    val_pcor, val_loss, val_actual, val_pred = evaluate(model, val_steps, val_batches, criterion, device)
+    val_pcor, val_loss, val_actual, val_pred = pancan_evaluate(model, val_steps, val_batches, criterion, device)
     
     # Append performance metrics of the val set
     val_pcors.append(val_pcor)

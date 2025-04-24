@@ -79,6 +79,60 @@ def evaluate(model, data_steps, data_batches, criterion, device):
     precision = precision_score(y_labels, y_preds, average='weighted', zero_division=np.nan)
         
     return auc_roc, accuracy, f1, precision, epoch_loss
+
+
+
+
+# Pearson correlation coefficient
+def pcor(y_true, y_pred):
+    mx = torch.mean(y_true)
+    my = torch.mean(y_pred)
+    xm = y_true - mx
+    ym = y_pred - my
+    r_num = torch.sum(xm * ym)
+    r_den = torch.sqrt(torch.sum(xm ** 2) * torch.sum(ym ** 2))
+    r = r_num / r_den
+    r = torch.clamp(r, min=-1.0, max=1.0)
+    return r
+
+
+    
+
+def pancan_evaluate(model, data_steps, data_batches, criterion, device):
+    """This function is for model prediction and evaluation"""
+    model.eval() # Set model to evaluation mode
+    y_labels = []
+    y_preds = []
+    running_loss = 0
+    val_pcor = 0
+
+    with torch.no_grad():
+        data_iter = iter(data_batches)
+        for i in range(data_steps):
+            X = next(data_iter)
+            x_mRNA = X[0][0]
+            x_mRNA = x_mRNA.view(x_mRNA.shape[0], 1, x_mRNA.shape[1], x_mRNA.shape[2]).to(device) # batch_size*channel*height*width
+            x_promoter = X[0][1]
+            x_promoter = x_promoter.view(x_promoter.shape[0], 1, x_promoter.shape[1], x_promoter.shape[2]).to(device)
+            labels = X[1].to(device)
+            outputs = model(x_mRNA, x_promoter)
+            # Assign the class with the largest probability
+            y_preds.extend(outputs.detach().numpy())
+                
+            loss = criterion(outputs, labels)
+            
+            # Update the running loss and predictions
+            running_loss += loss.item()
+            val_pcor += pcor(outputs, labels)
+            y_labels.extend(labels.cpu().numpy())
+    
+    # Validation loss
+    epoch_loss = running_loss / data_steps
+    epoch_pcor = val_pcor / data_steps    
+    y_labels = np.vstack(y_labels)
+    y_preds = np.vstack(y_preds)
+
+    return epoch_pcor, epoch_loss, y_labels, y_preds
     
 
     

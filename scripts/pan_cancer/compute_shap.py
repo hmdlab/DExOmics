@@ -43,8 +43,8 @@ torch.backends.cudnn.benchmark = False
 
 # Data loading -------------------------------------------------------------------
 deg_data = pd.read_csv('../../data/pancan_data/transcriptome/'+project+'_expid.txt', sep='\t')
-mRNA_data_loc = '../../data/rna_features/'
-promoter_data_loc = '../../data/promoter_features/'
+mRNA_data_loc = '../../data/pancan_data/rna_features/'
+promoter_data_loc = '../../data/pancan_data/promoter_features/'
 params_file = '../../pretrained/'+project+'_params.json'
 
 # Data split -------------------------------------------------------------------
@@ -55,7 +55,7 @@ test_names = '../../pretrained/gene_split/'+project+'_test.csv'
 
 # ENCODE data preparation
 deg_data_file = '../../data/pancan_data/transcriptome/'+project+'_expid.txt'
-y_train, y_val, y_test, x_mRNA_train, x_mRNA_val, x_mRNA_test, x_promoter_train, x_promoter_val, x_promoter_test = prep_ml_data_split(
+y_train, y_val, y_test, x_mRNA_train, x_mRNA_val, x_mRNA_test, x_promoter_train, x_promoter_val, x_promoter_test = pancan_prep_ml_data_split(
     deg_data_file=deg_data_file,
     mRNA_data_loc=mRNA_data_loc,
     promoter_data_loc=promoter_data_loc,
@@ -122,7 +122,7 @@ for out_indx in range(last_weights.shape[0]):
     outfile1 = outloc+'RNA_'+str(out_indx)+'.txt'
     outfile2 = outloc+'DNA_'+str(out_indx)+'.txt'
 
-    test_steps, test_batches = batch_iter_GradSHAP(x_mRNA_test.values[:,1], 
+    test_steps, test_batches = pancan_batch_iter_GradSHAP(x_mRNA_test.values[:,1], 
                                                    x_promoter_test.values[:,1], 
                                                    y_test_numeric.values, 
                                                    batch_size=batch_size,
@@ -133,7 +133,7 @@ for out_indx in range(last_weights.shape[0]):
 
     # Prepare background data
     for i in range(test_steps):
-        '''
+        
         # DeepExplainer --------------------------------------------------
         background = next(iter(test_batches))
         
@@ -153,8 +153,8 @@ for out_indx in range(last_weights.shape[0]):
         # Compute SHAP scores
         e = shap.DeepExplainer(model=new_model, data=xs_background)
         shap_values = e.shap_values([mRNA_test, promoter_test])
+
         '''
-        
         # GradientExplainer --------------------------------------------------
         print("test_steps:", i)
         background_test = next(iter(test_batches))
@@ -195,7 +195,7 @@ for out_indx in range(last_weights.shape[0]):
         print("shap_values[0]_shape", shap_values[0].shape)
         print("shap_values[1]_shape:", shap_values[1].shape)
         print("ROUND END ----------------------")
-        
+        '''
 
         # Export SHAP scores to text
         with open(outfile1, 'a') as f1:

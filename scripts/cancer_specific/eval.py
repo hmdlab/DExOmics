@@ -51,13 +51,13 @@ data['DEclass'] = data.apply(encode_label, axis=1)     # encode target
 data = data.drop(columns = ['DElabel'], axis = 1)    # delete DElabel
 mRNA_data_loc = '../../data/rna_features/'
 promoter_data_loc = '../../data/promoter_features/'
-with open('../../pretrained/'+tcga_cancer+'/params.json') as f:
+with open('../../pretrained/'+tcga_cancer+'_params.json') as f:
     params = json.load(f) 
 
 # Data split 
-test_file = '../../pretrained/gene_split'+tcga_cancer+'_test.csv'
-val_file = '../../pretrained/gene_split'+tcga_cancer+'_val.csv'
-train_file = '../../pretrained/gene_split'+tcga_cancer+'_train.csv'
+test_file = '../../pretrained/gene_split/'+tcga_cancer+'_test.csv'
+val_file = '../../pretrained/gene_split/'+tcga_cancer+'_val.csv'
+train_file = '../../pretrained/gene_split/'+tcga_cancer+'_train.csv'
 test = pd.read_csv(test_file,sep="\t",header=0).values[:,0]
 val = pd.read_csv(val_file,sep="\t",header=0).values[:,0]
 train = pd.read_csv(train_file,sep="\t",header=0).values[:,0]
@@ -137,6 +137,8 @@ print('Best model on Val: AUC-ROC={:.4f}, ACC={:.4f}, F1={:.4f}, Precision={:.4f
 # Evaluation on test set
 test_AUCs = []
 test_ACCs = []
+if not os.path.exists('../../metrics/'):
+    os.makedirs('../../metrics/')
 with open('../../metrics/'+tcga_cancer+'_full_test_metrics.csv', 'w') as file:
     print('Testing for reg'+str(l2_reg), file=file)
     for i in range(epoch):
