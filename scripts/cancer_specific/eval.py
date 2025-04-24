@@ -5,11 +5,7 @@ import torch
 import torch.nn as nn
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_curve, auc, confusion_matrix
-from sklearn.preprocessing import label_binarize
 sys.path.append('../')
 from network import *
 from utils.data_tool import encode_label

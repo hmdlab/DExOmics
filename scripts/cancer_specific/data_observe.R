@@ -2,10 +2,6 @@
 
 library(tidyverse)
 library(stringr)
-library(UpSetR)
-library(ggplot2)
-library(patchwork)
-library(ComplexHeatmap)
 library(TCGAbiolinks)
 library(SummarizedExperiment)
 

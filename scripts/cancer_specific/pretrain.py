@@ -6,13 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.sparse import vstack, hstack, coo_matrix, csr_matrix
-from torch.utils.data import DataLoader, Dataset
-from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.class_weight import compute_class_weight
-from sklearn.metrics import roc_auc_score, f1_score, accuracy_score, average_precision_score, precision_score
 sys.path.append('../')
 from network import *
 from utils.data_tool import *
