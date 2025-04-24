@@ -5,7 +5,7 @@ library(stringr)
 library(readr)
 library(data.table)
 
-data <- read_delim("../../data/postar3/human.txt", col_names = FALSE)
+data <- read_delim("../../data/human.txt", col_names = FALSE)
 cell_lines <- split(data, data$X8)
 df <- data.frame(cell_line = names(cell_lines), rbp_num = NA)
 for (i in 1:length(cell_lines)){
@@ -17,7 +17,7 @@ HeLa_bed_rna <- cell_lines[["HeLa"]] %>%
 
 grouped_data <- split(HeLa_bed_rna, HeLa_bed_rna$X6)
 
-folder_path <- "../data/HeLa_bed_rna/"
+folder_path <- "../data/hela_bed_rna/"
 if (!dir.exists(folder_path)) {
   dir.create(folder_path, recursive = TRUE)
 } 
