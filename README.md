@@ -50,7 +50,7 @@ Rscript dea.R LIHC hepg2
 Rscript data_merge.R LIHC hepg2 TRUE    # arg3: wether or not merge with encode expression data
 python get_HepG2_genes.py LIHC hepg2
 ```
-> Replace the arguments with expected TCGA cancer project and realted cell line. The preprocessed and integrated data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
+> Replace the arguments with expected TCGA cancer project and realted cell line. The preprocessed and integrated data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link). In addition, the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f) should be downloaded and put under `/data/TCGAdata`.
 
 ## 4. Analysis
 The training and evaluation of the concatenated model using combinations of the omics and regulator data can be done under `/scripts/cancer_specific` using:
