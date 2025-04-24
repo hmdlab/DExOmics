@@ -9,27 +9,39 @@ dependencies:
   - _r-mutex=1.0.1=anacondar_1
   - argcomplete=1.12.3=pyhd3eb1b0_0
   - binutils_impl_linux-64=2.40=ha1999f0_7
+  - bioconductor-annotationdbi=1.68.0=r44hdfd78af_0
+  - bioconductor-aroma.light=3.36.0=r44hdfd78af_0
   - bioconductor-biobase=2.66.0=r44h3df3fcb_0
+  - bioconductor-biocfilecache=2.14.0=r44hdfd78af_0
   - bioconductor-biocgenerics=0.52.0=r44hdfd78af_3
   - bioconductor-biocio=1.16.0=r44hdfd78af_0
   - bioconductor-biocparallel=1.40.0=r44he5774e6_1
+  - bioconductor-biomart=2.62.0=r44hdfd78af_0
   - bioconductor-biostrings=2.74.0=r44h3df3fcb_1
+  - bioconductor-complexheatmap=2.22.0=r44hdfd78af_0
   - bioconductor-data-packages=20250401=hdfd78af_0
   - bioconductor-delayedarray=0.32.0=r44h3df3fcb_1
+  - bioconductor-edaseq=2.40.0=r44hdfd78af_0
   - bioconductor-genomeinfodb=1.42.0=r44hdfd78af_2
   - bioconductor-genomeinfodbdata=1.2.13=r44hdfd78af_0
   - bioconductor-genomicalignments=1.42.0=r44h3df3fcb_0
+  - bioconductor-genomicfeatures=1.58.0=r44hdfd78af_0
   - bioconductor-genomicranges=1.58.0=r44h3df3fcb_2
   - bioconductor-iranges=2.40.0=r44h3df3fcb_2
+  - bioconductor-keggrest=1.46.0=r44hdfd78af_0
   - bioconductor-matrixgenerics=1.18.0=r44hdfd78af_0
   - bioconductor-plyranges=1.26.0=r44hdfd78af_0
+  - bioconductor-pwalign=1.2.0=r44h3df3fcb_0
   - bioconductor-rhtslib=3.2.0=r44h15a9599_1
   - bioconductor-rsamtools=2.22.0=r44h77050f0_0
   - bioconductor-rtracklayer=1.66.0=r44h15a9599_0
   - bioconductor-s4arrays=1.6.0=r44h3df3fcb_0
   - bioconductor-s4vectors=0.44.0=r44h3df3fcb_2
+  - bioconductor-shortread=1.64.0=r44h77050f0_1
   - bioconductor-sparsearray=1.6.0=r44h3df3fcb_0
   - bioconductor-summarizedexperiment=1.36.0=r44hdfd78af_0
+  - bioconductor-tcgabiolinks=2.34.0=r44hdfd78af_0
+  - bioconductor-tcgabiolinksgui.data=1.26.0=r44hdfd78af_0
   - bioconductor-ucsc.utils=1.2.0=r44h9ee0642_1
   - bioconductor-xvector=0.46.0=r44h15a9599_2
   - bioconductor-zlibbioc=1.52.0=r44h3df3fcb_2
@@ -101,7 +113,7 @@ dependencies:
   - libzlib=1.3.1=h4ab18f5_1
   - make=4.4.1=hb9d3cd8_2
   - ncurses=6.5=h59595ed_0
-  - openssl=3.4.1=h7b32b05_0
+  - openssl=3.5.0=h7b32b05_0
   - pandoc=3.6.4=ha770c72_0
   - pango=1.54.0=h3a902e7_3
   - pcre2=10.44=hba22ea6_2
@@ -117,6 +129,7 @@ dependencies:
   - r-base=4.4.2=hc737e89_2
   - r-base64enc=0.1_3=r44hb1dbf0f_1007
   - r-bh=1.87.0_1=r44hc72bb7e_0
+  - r-biocmanager=1.30.25=r44hc72bb7e_0
   - r-bit=4.6.0=r44h2b5f3a1_0
   - r-bit64=4.6.0_1=r44h2b5f3a1_0
   - r-bitops=1.0_9=r44h2b5f3a1_0
@@ -126,8 +139,11 @@ dependencies:
   - r-cachem=1.1.0=r44hb1dbf0f_1
   - r-callr=3.7.6=r44hc72bb7e_1
   - r-cellranger=1.1.0=r44hc72bb7e_1007
+  - r-circlize=0.4.16=r44hc72bb7e_1
   - r-cli=3.6.4=r44h93ab643_1
   - r-clipr=0.8.0=r44hc72bb7e_3
+  - r-clue=0.3_66=r44h2b5f3a1_0
+  - r-cluster=2.1.8.1=r44hb67ce94_0
   - r-codetools=0.2_20=r44hc72bb7e_1
   - r-colorspace=2.1_1=r44hdb488b9_0
   - r-conflicted=1.2.0=r44h785f33e_2
@@ -137,7 +153,10 @@ dependencies:
   - r-data.table=1.17.0=r44he23165d_0
   - r-dbi=1.2.3=r44hc72bb7e_1
   - r-dbplyr=2.5.0=r44hc72bb7e_1
+  - r-deldir=2.0_4=r44hbcb9c34_1
   - r-digest=0.6.37=r44h0d4f4ea_0
+  - r-doparallel=1.0.17=r44hc72bb7e_3
+  - r-downloader=0.4.1=r44hc72bb7e_0
   - r-dplyr=1.1.4=r44h0d4f4ea_1
   - r-dtplyr=1.3.1=r44hc72bb7e_2
   - r-ellipsis=0.3.2=r44hb1dbf0f_3
@@ -145,15 +164,19 @@ dependencies:
   - r-fansi=1.0.6=r44hb1dbf0f_1
   - r-farver=2.1.2=r44ha18555a_1
   - r-fastmap=1.2.0=r44ha18555a_1
+  - r-filelock=1.0.3=r44hb1dbf0f_1
   - r-fontawesome=0.5.3=r44hc72bb7e_0
   - r-forcats=1.0.0=r44hc72bb7e_2
+  - r-foreach=1.5.2=r44hc72bb7e_3
   - r-formatr=1.14=r44hc72bb7e_2
   - r-fs=1.6.5=r44h93ab643_0
   - r-futile.logger=1.4.3=r44hc72bb7e_1006
   - r-futile.options=1.0.1=r44hc72bb7e_1005
   - r-gargle=1.5.2=r44h785f33e_1
   - r-generics=0.1.3=r44hc72bb7e_3
+  - r-getoptlong=1.0.5=r44hc72bb7e_3
   - r-ggplot2=3.5.1=r44hc72bb7e_1
+  - r-globaloptions=0.1.2=r44ha770c72_3
   - r-glue=1.8.0=r44h2b5f3a1_0
   - r-googledrive=2.1.1=r44hc72bb7e_2
   - r-googlesheets4=1.1.1=r44h785f33e_2
@@ -163,14 +186,20 @@ dependencies:
   - r-hms=1.1.3=r44hc72bb7e_2
   - r-htmltools=0.5.8.1=r44ha18555a_1
   - r-httr=1.4.7=r44hc72bb7e_1
+  - r-httr2=1.1.2=r44hc72bb7e_0
+  - r-hwriter=1.3.2.1=r44hc72bb7e_3
   - r-ids=1.0.1=r44hc72bb7e_4
+  - r-interp=1.1_6=r44ha936806_1
   - r-isoband=0.2.7=r44ha18555a_3
+  - r-iterators=1.0.14=r44hc72bb7e_3
+  - r-jpeg=0.1_11=r44hc5f1ce6_0
   - r-jquerylib=0.1.4=r44hc72bb7e_3
   - r-jsonlite=2.0.0=r44h2b5f3a1_0
   - r-knitr=1.50=r44hc72bb7e_0
   - r-labeling=0.4.3=r44hc72bb7e_1
   - r-lambda.r=1.2.4=r44hc72bb7e_4
   - r-lattice=0.22_7=r44h2b5f3a1_0
+  - r-latticeextra=0.6_30=r44hc72bb7e_3
   - r-lifecycle=1.0.4=r44hc72bb7e_1
   - r-lubridate=1.9.4=r44h2b5f3a1_0
   - r-magrittr=2.0.3=r44hb1dbf0f_3
@@ -186,15 +215,23 @@ dependencies:
   - r-openssl=2.3.2=r44he8289e2_0
   - r-pillar=1.10.1=r44hc72bb7e_0
   - r-pkgconfig=2.0.3=r44hc72bb7e_4
+  - r-plogr=0.2.0=r44hc72bb7e_1006
+  - r-plyr=1.8.9=r44ha18555a_1
+  - r-png=0.1_8=r44h21f035c_2
   - r-prettyunits=1.2.0=r44hc72bb7e_1
   - r-processx=3.8.6=r44h2b5f3a1_0
   - r-progress=1.2.3=r44hc72bb7e_1
   - r-ps=1.8.1=r44h2b5f3a1_0
   - r-purrr=1.0.4=r44h2b5f3a1_0
+  - r-r.methodss3=1.8.2=r44hc72bb7e_3
+  - r-r.oo=1.27.0=r44hc72bb7e_0
+  - r-r.utils=2.13.0=r44hc72bb7e_0
   - r-r6=2.6.1=r44hc72bb7e_0
   - r-ragg=1.3.3=r44h9aa3752_0
   - r-rappdirs=0.3.3=r44hb1dbf0f_3
   - r-rcolorbrewer=1.1_3=r44h785f33e_3
+  - r-rcpp=1.0.14=r44h93ab643_0
+  - r-rcppeigen=0.3.4.0.2=r44hb79369c_0
   - r-rcurl=1.98_1.16=r44he8228da_1
   - r-readr=2.1.5=r44h0d4f4ea_1
   - r-readxl=1.4.5=r44h328fee5_0
@@ -205,11 +242,13 @@ dependencies:
   - r-rjson=0.2.23=r44h93ab643_0
   - r-rlang=1.1.5=r44h93ab643_0
   - r-rmarkdown=2.29=r44hc72bb7e_0
+  - r-rsqlite=2.3.9=r44h93ab643_0
   - r-rstudioapi=0.17.1=r44hc72bb7e_0
   - r-rvest=1.0.4=r44hc72bb7e_1
   - r-sass=0.4.9=r44ha18555a_1
   - r-scales=1.3.0=r44hc72bb7e_1
   - r-selectr=0.4_2=r44hc72bb7e_4
+  - r-shape=1.4.6.1=r44ha770c72_1
   - r-snow=0.4_4=r44hc72bb7e_3
   - r-stringi=1.8.7=r44h3c328a7_0
   - r-stringr=1.5.1=r44h785f33e_1
@@ -329,9 +368,9 @@ dependencies:
       - stack-data==0.6.3
       - threadpoolctl==3.5.0
       - tinycss2==1.2.1
-      - torch==1.13.0
-      - torchaudio==0.13.0
-      - torchvision==0.14.0
+      - torch==1.13.0+cpu
+      - torchaudio==0.13.0+cpu
+      - torchvision==0.14.0+cpu
       - tornado==6.4.2
       - tqdm==4.66.4
       - traitlets==5.14.3
@@ -342,4 +381,3 @@ dependencies:
       - webencodings==0.5.1
       - yarg==0.1.9
       - zipp==3.19.2
-prefix: /home/yi-huang/miniconda3/envs/torch
