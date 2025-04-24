@@ -1,0 +1,4 @@
+{"mRNA_in_channels": 1.0, "n_feature_mRNA": 86.0, "RNA_n_channel_1st": 32.0, "RNA_conv_kernel": 2.0, "RNA_n_ConvLayer": 1.0,
+"promoter_in_channels": 1.0, "n_feature_promoter": 548.0, "DNA_n_channel_1st": 32.0, "DNA_conv_kernel": 2.0, "DNA_n_ConvLayer": 1.0,
+"ConvRelu": "Yes", "FullRelu": "Yes", "last_ConvFClayer": 1.0, "encode_last_n_channel": 64.0,
+"tcga_input_size": 17.0, "tcga_hidden_size": 96.0, "last_n_channel": 160.0, "n_out": 3.0}
