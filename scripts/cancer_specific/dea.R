@@ -89,8 +89,7 @@ dataDMC <- TCGAanalyze_DMC(
   group2 = "NT",
   p.cut = 0.01,
   diffmean.cut = 0.25,
-  legend = "State",
-  plot.filename = paste0("../../plots_", cancer, "/DMC_volcano.pdf")
+  legend = "State"
 )
 save(dataDMC, file = paste0(folder_path, "dataDMC.rda"))
 

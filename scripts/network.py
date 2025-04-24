@@ -140,10 +140,10 @@ class tcga_MLP(nn.Module):
 
 
 
-class encode_CNN(nn.Module):
+class interactome_CNN(nn.Module):
     """Define the CNN network for the ENCODE part data"""
     def __init__(self, params):
-        super(encode_CNN, self).__init__()
+        super(interactome_CNN, self).__init__()
 
         # Define mRNA model
         self.RNA_layers = nn.Sequential()
