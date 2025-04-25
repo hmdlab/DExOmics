@@ -21,7 +21,8 @@ conda activate dexomics
 ## 2. Data Sources
 The downloading of the data can be conducted under `data_download`. 
 - Pancancer study
-    - All data are stored in [pancan_data.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link).
+    - Make a new directory by `mkdir data`.
+    - Download [pancan_data.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and put them under `data`.
 - Cancer-specific study
     - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC. The output data is be stored under `data/TCGAdata`.
 
