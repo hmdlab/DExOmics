@@ -28,7 +28,7 @@ The downloading of the data can be conducted under `data_download`.
 
     - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt.gz` files under `data_download`, and run `bash load_regulator.sh` to download each of them. 
 
-    - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) and put it into `data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`.
+    - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) from POSTAR3 and put it into `data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`.
 
 
 ## 3. Proprocessing and Integration
@@ -69,8 +69,5 @@ Rscript shap_plot.R ../../shap/ExpectedGrad_LIHC/ ../../plots_LIHC/global/
 ```
 > The trained models are stored [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link).
 
-## 5. License
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
-## 6. Citation
+## 5. Citation
 If you find this project helpful, please cite:
