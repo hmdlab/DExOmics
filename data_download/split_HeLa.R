@@ -5,7 +5,8 @@ library(stringr)
 library(readr)
 library(data.table)
 
-data <- read_delim("../../data/human.txt", col_names = FALSE)
+# data <- read_delim("../../data/human.txt", col_names = FALSE)
+data <- read_delim("../data/human.txt.gz", col_names = FALSE)
 cell_lines <- split(data, data$X8)
 df <- data.frame(cell_line = names(cell_lines), rbp_num = NA)
 for (i in 1:length(cell_lines)){
