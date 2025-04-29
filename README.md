@@ -26,7 +26,7 @@ The downloading of the data can be conducted under `data_download`.
 - Cancer-specific study
     - Use the command `Rscript load_*.R [cancer_type]` to download each omics data of the TCGA-LIHC and TCGA-CESC. The output data is be stored under `data/TCGAdata`.
 
-    - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt.gz` files under `data_download`, and run `bash load_regulator.sh` to download each of them. 
+    - The bed narrowPeak files of the TF-binding/RBP-binding data are stored in `.txt.gz` files under `data_download`, and run `load_regulator.sh` to download each of them. 
 
     - Download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) from POSTAR3 and put it into `data`. Bed files of HeLa RBP-binding data can be extracted using `split_HeLa.R`.
 
@@ -44,7 +44,7 @@ python 02_to_sparse.py ../data/rna_features/encode_hepg2_rna.txt
 ```
 Arguments: b - bed files directory; n - size of bins for the genomic features; g - path to the GTF file; t - input type; o - output file; s - data source.
 
-> The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
+> The processed data can be found in [promoter_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link). 
 
  For preprocessing of the TCGA omics data and integration, run the following under `scripts/cancer_specific`:
 ```
@@ -53,14 +53,30 @@ Rscript dea.R LIHC hepg2
 Rscript data_merge.R LIHC hepg2 TRUE    # arg3: whether or not merge with encode expression data
 python get_HepG2_genes.py LIHC hepg2
 ```
-> Replace the arguments with expected TCGA cancer project and related cell line. The preprocessed and integrated data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link). In addition, the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f) should be downloaded and put under `data/TCGAdata`.
+> Replace the arguments with expected TCGA cancer project and related cell line. The preprocessed and integrated data of cancer-specific study is stored in [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link). In addition, the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f) should be downloaded for mapping and put under `data/TCGAdata`.
 
 ## 4. Analysis
-The training and evaluation of the concatenated model using combinations of the omics and regulator data can be done under `scripts/cancer_specific` using:
+As for pancaner study, the training and evaluation of the model can be done under `scripts/pan_cancer` using:
+```
+python pretrain.py ../../pancanatlas_model/ -p pancanatlas -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
+# python eval.py ../../pancanatlas_model/ -p pancanatlas -n 100 -reg 0.001
+Rscript calc_performance.R pancanatlas
+```
+
+Interpretation using DeepLIFT and visualization can be done using:
+```
+python compute_shap.py ../../shap/DeepLIFT_pancanatlas/ -p pancanatlas
+Rscript summarize_SHAP.R pancanatlas ../../shap/DeepLIFT_pancanatlas/
+Rscript shap_plot.R pancanatlas ../../shap/DeepLIFT_pancanatlas/ ../../plots_pancanatlas/
+```
+
+
+As for cancer-specific pipeline, run the following unsder `scripts/cancer_specific`:
 ```
 python pretrain.py LIHC hepg2 ../../model_LIHC/concat/ -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.0001
 python eval.py LIHC hepg2 ../../model_LIHC/concat/ -n 100 -reg 0.0001
 ```
+
 Here's an example for interpreting the LIHC model using ExpectedGrad and visualizing the results:
 ```
 python compute_shap.py LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
