@@ -59,7 +59,7 @@ python get_HepG2_genes.py LIHC hepg2
 As for pancaner study, the training and evaluation of the model can be done under `scripts/pan_cancer` using:
 ```
 python pretrain.py ../../pancanatlas_model/ -p pancanatlas -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
-# python eval.py ../../pancanatlas_model/ -p pancanatlas -n 100 -reg 0.001
+python eval.py ../../pancanatlas_model/ -p pancanatlas -n 100 -reg 0.001
 Rscript calc_performance.R pancanatlas
 ```
 
@@ -83,7 +83,7 @@ python compute_shap.py LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
 Rscript summarize_SHAP.R LIHC ../../shap/ExpectedGrad_LIHC/
 Rscript shap_plot.R ../../shap/ExpectedGrad_LIHC/ ../../plots_LIHC/global/
 ```
-> The trained models are stored [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link).
+> Replace the arguments with other expected project (eg. pcawg, CESC) and related cell line (eg. hela), and the trained models are stored [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link).
 
 ## 5. Citation
 If you find this project helpful, please cite:
