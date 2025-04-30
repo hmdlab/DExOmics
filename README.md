@@ -20,14 +20,14 @@ conda activate dexomics
 
 ## 2. Data Sources
 All data downloading scripts are provided under the `data_download/` directory.
-### 2.1 Pan-cancer study
+### Pan-cancer study
 - Create a directory:
     ```bash
     mkdir data
     ```
 - Download the archive [pancan_data.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and place it inside the `data` directory.
 
-### 2.2 Cancer-specific study
+### Cancer-specific study
 - Run the following command to download TCGA omics data for LIHC and CESC:
     ```bash
     Rscript load_*.R [cancer_type]
@@ -47,7 +47,7 @@ You can extract HeLa RBP-binding BED files using:
 
 
 ## 3. Proprocessing and Integration
-### 3.1 Mapping BED Features to RNA Coordinates
+### Mapping BED Features to RNA Coordinates
 Convert BED-format genomic interactions to transcript-relative coordinates and sparse matrices:
 ```bash
 mkdir data/promoter_features
@@ -70,7 +70,7 @@ You can also download preprocessed files:
 - [promoter_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
 - [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
 
-### 3.2 TCGA Data Preprocessing and Integration
+### TCGA Data Preprocessing and Integration
 From `scripts/cancer_specific/`, run:
 ```bash
 Rscript data_observe.R LIHC
@@ -85,7 +85,7 @@ Additionally, download the [Methylation Array Gene Annotation File](https://api.
 
 
 ## 4. Analysis
-### 4.1 Pan-cancer study
+### Pan-cancer study
 Train and evaluate the model under `scripts/pan_cancer/`:
 ```bash
 python pretrain.py ../../pancanatlas_model/ -p pancanatlas -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
@@ -100,7 +100,7 @@ Rscript summarize_SHAP.R pancanatlas ../../shap/DeepLIFT_pancanatlas/
 Rscript shap_plot.R pancanatlas ../../shap/DeepLIFT_pancanatlas/ ../../plots_pancanatlas/
 ```
 
-### 4.2 Cancer-specific study
+### Cancer-specific study
 Under `scripts/cancer_specific/`, train and evaluate the model:
 ```bash
 python pretrain.py LIHC hepg2 ../../model_LIHC/concat/ -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.0001
