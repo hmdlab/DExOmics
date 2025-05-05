@@ -5,7 +5,7 @@
     "RNA_conv_kernel": 2.0,
     "RNA_n_ConvLayer": 1.0,
     "promoter_in_channels": 1.0,
-    "n_feature_promoter": 548,
+    "n_feature_promoter": 553,
     "DNA_n_channel_1st": 32.0,
     "DNA_conv_kernel": 2.0,
     "DNA_n_ConvLayer": 1.0,
