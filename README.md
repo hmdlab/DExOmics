@@ -18,6 +18,7 @@ conda env create -f dependencies_all.yml
 conda activate dexomics
 ```
 
+
 ## 2. Data Sources
 All data downloading scripts are provided under the `data_download/` directory.
 ### Pan-cancer study
@@ -32,12 +33,13 @@ All data downloading scripts are provided under the `data_download/` directory.
     ```bash
     Rscript load_*.R [cancer_type]
     ```
-        Output files will be stored under `data/TCGAdata/`.
+    Output files will be stored under `data/TCGAdata/`.
 
 - Transcription factor (TF) and RNA-binding protein (RBP) binding peak files are defined in `.txt.gz` files under `data_download/`. To download them, run:
     ```bash
     bash load_regulator.sh
     ```
+Metadata needs to be manually downloaded from the first lines of the files and placed into according directories.
 
 - Additionally, download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) from POSTAR3 and place it in the `data/` directory.
 You can extract HeLa RBP-binding BED files using:
@@ -71,7 +73,7 @@ You can also download preprocessed files:
 - [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
 
 ### TCGA Data Preprocessing and Integration
-From `scripts/cancer_specific/`, run:
+First, download the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f), place it in `data/TCGAdata/`, and unzip. From `scripts/cancer_specific/`, run:
 ```bash
 Rscript data_observe.R LIHC
 Rscript dea.R LIHC hepg2
@@ -80,8 +82,6 @@ python get_HepG2_genes.py LIHC hepg2
 ```
 >Replace arguments with the desired TCGA project and related cell line.
 The processed data is also available as [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link).
-Additionally, download the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f) and place it in `data/TCGAdata/`.
-
 
 
 ## 4. Analysis
