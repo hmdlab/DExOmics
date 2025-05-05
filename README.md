@@ -114,7 +114,7 @@ Rscript summarize_SHAP.R LIHC ../../shap/ExpectedGrad_LIHC/
 Rscript shap_plot.R ../../shap/ExpectedGrad_LIHC/ ../../plots_LIHC/global/
 ```
 >You can substitute `LIHC/hepg2` with other projects and cell lines (e.g., `CESC/hela`).
-Pretrained models are available [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link).
+Pretrained models are available [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link), and the resulting metrics are recorded [here](https://drive.google.com/drive/folders/1kjnYI5AQ6HweQK8UYlRJwLyVV5u1za6K?usp=drive_link)
 
 ## 5. Citation
 If you find this project helpful, please cite:
