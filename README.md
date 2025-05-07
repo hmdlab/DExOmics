@@ -1,6 +1,6 @@
 # DExOmics
 This repository provides code and processed data for the paper:  
-**"Interpreting Differential Gene Expression in Cancer through AI-Guided Analysis of Multi-Omics Data"**.
+**"An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in Cancer"**.
 
 
 ## 1. Dependencies
