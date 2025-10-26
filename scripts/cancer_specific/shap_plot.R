@@ -49,9 +49,9 @@ box1 <- ggplot(omics_long, aes(x = sample_name, y = value, fill = sample_name)) 
     panel.background = element_blank(),  # Removes background
     axis.line = element_line(colour = "black"),  # Adds axis lines
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 18)
+    legend.text = element_text(size = 18),
+    axis.text = element_text(size = 20),
+    axis.title = element_text(size = 24)
   )
 
 box2 <- ggplot(tf_long, aes(x = sample_name, y = value, fill = sample_name)) +
@@ -69,10 +69,11 @@ box2 <- ggplot(tf_long, aes(x = sample_name, y = value, fill = sample_name)) +
     panel.background = element_blank(),  # Removes background
     axis.line = element_line(colour = "black"),  # Adds axis lines
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 18)
+    legend.text = element_text(size = 18),
+    axis.text = element_text(size = 20),
+    axis.title = element_text(size = 24)
   )
+
 
 box3 <- ggplot(rbp_long, aes(x = sample_name, y = value, fill = sample_name)) +
   geom_violin(trim = FALSE) +
@@ -89,9 +90,9 @@ box3 <- ggplot(rbp_long, aes(x = sample_name, y = value, fill = sample_name)) +
     panel.background = element_blank(),  # Removes background
     axis.line = element_line(colour = "black"),  # Adds axis lines
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-    legend.text = element_text(size = 14),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 18)
+    legend.text = element_text(size = 18),
+    axis.text = element_text(size = 24),
+    axis.title = element_text(size = 24)
   )
 box_plot <- box1 + box2 + box3
 ggsave(paste0(outloc, "omics_promoter_rna_EG.pdf"), plot = box_plot, width = 10, height = 6, dpi = 300)
@@ -123,10 +124,10 @@ upDEG_top10_plot <- ggplot(upDEG_top10, aes(x = reorder(variable, -value), y = v
   scale_fill_manual(values = pastel_colors) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-        legend.text = element_text(size = 14),
-        legend.title = element_text(size = 14),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18)) +
+        legend.text = element_text(size = 18),
+        legend.title = element_text(size = 18),
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 24)) +
   labs(x = "", y = "Expected Grad.", fill = "Factor")
 ggsave(paste0(outloc, "upDEG_top10EG.pdf"), plot = upDEG_top10_plot, width = 10, height = 6, dpi = 300)
 
@@ -150,10 +151,10 @@ downDEG_top10_plot <- ggplot(downDEG_top10, aes(x = reorder(variable, -value), y
   scale_fill_manual(values = pastel_colors) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-        legend.text = element_text(size = 14),
-        legend.title = element_text(size = 14),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18)) +
+        legend.text = element_text(size = 18),
+        legend.title = element_text(size = 18),
+        axis.text = element_text(size = 20),
+        axis.title = element_text(size = 24)) +
   labs(x = "", y = "Expected Grad.", fill = "Factor")
 ggsave(paste0(outloc, "downDEG_top10EG.pdf"), plot = downDEG_top10_plot, width = 10, height = 6, dpi = 300)
 gene_name <- basename(normalizePath(outloc, mustWork = FALSE))
@@ -210,7 +211,13 @@ Heatmap(
   name = "EG",
   top_annotation = HeatmapAnnotation(
     df = data.frame(Factor = factors), 
-    col = list(Factor = pastel_colors) 
+    col = list(Factor = pastel_colors),
+    annotation_legend_param = list(
+      Factor = list(
+        title_gp  = gpar(fontsize = 18),
+        labels_gp = gpar(fontsize = 18) 
+      )
+    )
   ),
   cluster_rows = FALSE,
   cluster_columns = TRUE,
@@ -218,15 +225,12 @@ Heatmap(
   show_column_names = TRUE,
   row_order = row_order,
   heatmap_legend_param = list(
-    legend_gp = gpar(fontsize = 14),  
-    title_gp = gpar(fontsize = 14)   
+    title_gp  = gpar(fontsize = 18), 
+    labels_gp = gpar(fontsize = 18)
   ),
-  row_names_gp = gpar(fontsize = 14),  
-  column_names_gp = gpar(fontsize = 14),  
-  column_title_gp = gpar(fontsize = 18), 
-  row_title_gp = gpar(fontsize = 18)    
-)
+  row_names_gp = gpar(fontsize = 20),
+  column_names_gp = gpar(fontsize = 20))
+
 
 dev.off()
-
 

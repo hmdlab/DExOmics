@@ -82,23 +82,66 @@ p_values_df$significance <- ifelse(p_values_df$p_value < 0.001, "***",
                                                  sprintf("p = %.3g", p_values_df$p_value))))  # p ≥ 0.05 直接显示数值
 
 # Plotting
-contribution_boxplot <- ggplot(df_long, aes(x = Category, y = Value, fill = Category)) +
-  geom_violin(alpha = 0.7) +  
-  geom_boxplot(width = 0.2, outlier.shape = NA, color = "black") + 
-  geom_jitter(width = 0.1, alpha = 0.4) +  
-  scale_y_log10() + 
-  geom_signif(comparisons = list(c("TF", "RBP"), c("TF", "miRNA"), c("RBP", "miRNA")),
-              annotations = p_values_df$significance,
-              y_position = c(0, -0.5, -1),
-              tip_length = 0.02, textsize = 5) +
-  theme_classic() + 
-  labs(title = "",
-       x = "", 
-       y = "Contribution Score") +
-  theme(legend.position = "none",
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 18))
+contribution_boxplot <- ggplot(df_long, aes(x = Category, y = Value, fill = Category)) + 
+                              geom_violin(alpha = 0.7) + 
+                              geom_boxplot(width = 0.2, outlier.shape = NA, color = "black") + 
+                              geom_jitter(width = 0.1, alpha = 0.4) + 
+                              scale_y_log10() + 
+                              geom_signif(comparisons = list(c("TF", "RBP"), c("TF", "miRNA"), c("RBP", "miRNA")), 
+                                          annotations = p_values_df$significance, y_position = c(0, -0.5, -1), 
+                                          tip_length = 0.02, textsize = 5) + 
+                              theme_classic() + 
+                              labs(title = "", x = "", y = "Contribution Score") + 
+                              theme(legend.position = "none", 
+                                    axis.text.x = element_text(size = 24), 
+                                    axis.text.y = element_text(size = 20), 
+                                    axis.title = element_text(size = 24)) 
 ggsave(paste0(outloc, cancer, "_DeepLIFT_contribution_boxplot.pdf"), plot = contribution_boxplot, width = 10, height = 8, dpi = 300)
+
+
+
+# Generate the box plots about the cancer types ---------------------------------------------------------
+all_long <- bind_rows(
+  tf_long    %>% dplyr::rename(feature = variable, score = value) %>% dplyr::mutate(Factor = "TF"),
+  rbp_long   %>% dplyr::rename(feature = variable, score = value) %>% dplyr::mutate(Factor = "RBP"),
+  mirna_long %>% dplyr::rename(feature = variable, score = value) %>% dplyr::mutate(Factor = "miRNA")
+)
+
+order_tbl <- all_long %>%
+  dplyr::group_by(Factor, sample_name) %>%
+  dplyr::summarise(med = median(score, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::group_by(Factor) %>%
+  dplyr::arrange(dplyr::desc(med), .by_group = TRUE) %>%
+  dplyr::summarise(levels = list(sample_name), .groups = "drop")
+
+split_df   <- all_long %>% dplyr::group_split(Factor)
+split_lvls <- order_tbl$levels
+all_long2  <- purrr::map2_dfr(
+  split_df, split_lvls,
+  ~ dplyr::mutate(.x, sample_name = factor(sample_name, levels = .y))
+)
+
+factor_cols <- c("TF" = "#4C78A8", "RBP" = "#72B7B2", "miRNA" = "#E45756")
+
+per_cancer_box_3in1 <- ggplot(all_long2, aes(x = sample_name, y = score, fill = Factor)) +
+  geom_boxplot(outlier.shape = NA, width = 0.6, color = "black") +
+  scale_fill_manual(values = factor_cols, name = "Factor") +
+  scale_y_log10() +
+  facet_wrap(~ Factor, nrow = 1, scales = "free_x") + 
+  labs(x = "", y = "Contribution score") +
+  theme_classic() +
+  theme(
+    axis.text.x   = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 14),
+    axis.text.y   = element_text(size = 20),
+    axis.title    = element_text(size = 24),
+    strip.text    = element_text(size = 24, face = "bold"),
+    panel.spacing = unit(10, "pt"),
+    legend.position = "none"
+  )
+
+ggsave(paste0(outloc, cancer, "_perDeepLIFT_contribution_boxplot.pdf"),
+       per_cancer_box_3in1, width = 18, height = 6, dpi = 300)
+
 
 
 
@@ -125,26 +168,27 @@ df_wide_mat <- df_wide %>%
 factors <- data_short$factor[seq(from = 1, to = nrow(data_short), by = length(unique(data_short$sample_name)))]
 
 # ComplexHeatmap
-pdf(paste0(outloc, cancer, "_DeepLIFT_heatmap.pdf"), width = 12, height = 8)
+pdf(paste0(outloc, cancer, "_DeepLIFT_heatmap.pdf"), width = 12, height = 10)
 Heatmap(
   df_wide_mat, 
-  name = "DeepLIFT score",
+  name = "DL",
   top_annotation = HeatmapAnnotation(
     df = data.frame(Factor = factors),
-    col = list(Factor = c("tf" = "#B3CDE3", "rbp" = "#CCEBC5", "mirna" = "#FBB4AE"))),
+    col = list(Factor = c("tf" = "#B3CDE3", "rbp" = "#CCEBC5", "mirna" = "#FBB4AE")),
+    annotation_legend_param = list(
+      Factor = list(
+        title_gp  = gpar(fontsize = 18),
+        labels_gp = gpar(fontsize = 18) 
+      )
+    )),
   cluster_rows = TRUE,
   cluster_columns = TRUE,
   show_row_names = TRUE,
   show_column_names = TRUE,
   heatmap_legend_param = list(
-    legend_gp = gpar(fontsize = 14),  
-    title_gp = gpar(fontsize = 14)   
+    title_gp  = gpar(fontsize = 18), 
+    labels_gp = gpar(fontsize = 18)   
   ),
-  row_names_gp = gpar(fontsize = 14),  
-  column_names_gp = gpar(fontsize = 14), 
-  column_title_gp = gpar(fontsize = 18),  
-  row_title_gp = gpar(fontsize = 18)) 
+  row_names_gp = gpar(fontsize = 20),  
+  column_names_gp = gpar(fontsize = 20)) 
 dev.off()
-
-
-

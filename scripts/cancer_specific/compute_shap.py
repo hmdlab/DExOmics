@@ -15,7 +15,7 @@ from utils.data_tool import *
 
 
 # Create the parser
-parser = argparse.ArgumentParser(description="Training")
+parser = argparse.ArgumentParser(description="Global interpretation using SHAP")
 # Add arguments
 parser.add_argument('tcga_cancer', type=str, help='The cancer type from TCGA to be trained')
 parser.add_argument('encode_cell_line', type=str, help='The cell line from ENCODE to be trained')
