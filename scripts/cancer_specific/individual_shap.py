@@ -99,10 +99,20 @@ encode_Y_train, encode_Y_val, encode_Y_test, encode_X_mRNA_train, encode_X_mRNA_
     val_file=val_file,
     test_file=test_file,
     outloc='../../model_'+tcga_cancer+'/concat/')
-encode_X_mRNA_train = encode_X_mRNA_train[encode_X_mRNA_train['Name'] != gene_id]
-encode_X_promoter_train = encode_X_promoter_train[encode_X_promoter_train['Name'] != gene_id]
-if gene_idx: 
-    encode_Y_train = encode_Y_train[encode_Y_train['Gene'] != gene_id]
+
+# mask = encode_X_mRNA_train['Name'].astype(str) != gene_id
+# encode_X_mRNA_train = encode_X_mRNA_train.loc[mask].reset_index(drop=True)
+# encode_X_promoter_train = encode_X_promoter_train.loc[mask].reset_index(drop=True)
+# if len(encode_Y_train) == len(mask):
+#     encode_Y_train = encode_Y_train.loc[mask.values].reset_index(drop=True)
+
+try: 
+    encode_X_mRNA_train = encode_X_mRNA_train[encode_X_mRNA_train['Name'] != gene_id] 
+    encode_X_promoter_train = encode_X_promoter_train[encode_X_promoter_train['Name'] != gene_id] 
+    encode_Y_train = encode_Y_train.drop(gene_idx) 
+except: 
+    print(gene_id+" is not in the ENCODE training data set.") 
+    sys.exit(0)
 
 
 # Load model parameters
