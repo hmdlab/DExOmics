@@ -192,6 +192,15 @@ PDFs into `2024_Yi_Bioinformatics_TeX/{fig,supple_fig}/`.
   propagated to the sub-processes through `DEXOMICS_DATA`.
 * **Original-label files** (`data/TCGAprocessed/*/DEG_info.csv`) are used only to audit the previous labels
   (`01`, `12`); no model is trained on them.
+* **Verification (2026-10-29, Mac Studio, `smoke_test.sh`).** Re-running `22b` on the real intermediates
+  reproduced the XGBoost seed results exactly (per-seed 0.3469/0.3542/0.3523/0.3464/0.3488, average 0.357);
+  `22c` reproduced every point estimate exactly and the manuscript's paired CIs to within 0.001-0.002
+  (e.g. ens_pre - XGBoost: internal +0.029 [0.021, 0.037], LIRI-JP +0.029 [0.018, 0.041]; pretrained - random
+  init +0.014 [0.005, 0.023]); `29b` reproduced all threshold-free metrics exactly and macro-F1 / recalls to
+  within 0.002 / 0.02 (threshold grid differs from the interactive run); the direct-vs-score paired difference came
+  out as +0.033 [0.021, 0.044] (macro-F1) and +0.078 [0.061, 0.098] (PR-AUC DOWN) against +0.031 / +0.077 in the
+  manuscript. All figure scripts ran. The staged `--quick` run then completed features, de (incl. R), exp1 and
+  exp2 without errors.
 * `smoke_test.sh` creates a fresh test root (inputs symlinked, small results copied) and runs `22b/22c/29b`
   + the figure scripts on the real intermediates, then `run_all.sh --quick` for every stage, without touching
   the real data root.
