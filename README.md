@@ -3,6 +3,14 @@ This repository provides code and processed data for the paper:
 **"An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in Cancer"**.
 
 
+## Revision analysis (2026)
+
+The scripts behind the 2026 revision of the cancer-specific analysis (TCGA-only labels, chromosome-blocked
+nested CV, external replication in ICGC LIRI-JP, positional CNN + XGBoost ensemble, frozen CESC confirmation,
+interpretation) are in [`analysis/`](analysis/README.md). They are independent of the original pipeline below:
+`pip install -r analysis/requirements.txt`, then `bash analysis/run_all.sh data` and `bash analysis/run_all.sh all`
+(see `analysis/README.md` for the data layout, stage order and run times).
+
 ## 1. Dependencies
 **Tested Environment**\
 OS: Ubuntu 24.04.1 LTS\

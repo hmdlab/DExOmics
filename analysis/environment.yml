@@ -1,0 +1,12 @@
+# conda alternative to requirements.txt (the original hmdlab/DExOmics repo uses conda). R is needed only for
+# 11_voom_labels.R (called by 12): limma + edgeR from Bioconductor.
+name: dexomics-revision
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.12
+  - r-base>=4.3
+  - bioconductor-limma
+  - bioconductor-edger
+  - pip
+  - pip:
+      - -r requirements.txt

@@ -1,0 +1,15 @@
+# Direct dependencies of analysis/*.py (versions = the environment in which the revision results were produced:
+# Python 3.12.13, macOS 27 / Apple M2 Ultra, 2026-09-20..21). Any recent versions should work; torch on Linux
+# is installed from the default index (CUDA) or CPU wheels, see README "Environment".
+numpy==2.5.3
+pandas==3.0.6
+pyarrow==25.0.1
+scipy==1.18.1
+scikit-learn==1.9.1
+xgboost==3.4.1
+pydeseq2==0.5.4
+torch==2.14.0
+shap==0.52.0
+statsmodels==0.15.0
+matplotlib==3.11.2
+requests==2.34.2
