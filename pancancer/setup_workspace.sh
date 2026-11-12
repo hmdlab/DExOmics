@@ -17,16 +17,17 @@
 # in place, and the rewritten values belong to the checkpoints trained with them).
 # Several clones/worktrees that use the same WORKSPACE share (and overwrite) the same checkpoints and outputs:
 # give each one its own WORKSPACE argument when runs must be kept apart. Symlinks are absolute: re-run this
-# script after moving the clone or the workspace.
+# script after moving the clone or the workspace. Passing a different WORKSPACE later does NOT re-point links
+# that already exist (they are reported as KEEP); remove them first if you really want to switch.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"   # .../pancancer (physical path)
 REPO="$(dirname "$HERE")"                                   # repository root
 WS="${1:-${PANCANCER_WORKSPACE:-$HOME/Data/DExOmics/pancancer}}"
-mkdir -p "$WS"
+created_ws=0; [ -d "$WS" ] || { mkdir -p "$WS"; created_ws=1; }
 WS_ABS="$(cd "$WS" && pwd -P)"                              # physical path, so a symlinked workspace cannot point back into the clone
 case "$WS_ABS/" in
-  "$REPO/"*) rmdir "$WS" 2>/dev/null || true
+  "$REPO/"*) [ "$created_ws" = 1 ] && rmdir "$WS" 2>/dev/null
              echo "ERROR: the workspace ($WS_ABS) must be outside the repository ($REPO)" >&2; exit 1 ;;
 esac
 WS="$WS_ABS"
@@ -49,7 +50,13 @@ done
 
 # From here on work with the directories the scripts will actually reach through the repo-root names (these equal
 # $WS/<name> unless a KEEP/SKIP line above said otherwise), so that a differently targeted link is prepared too.
-eff() { ( cd "$REPO/$1" 2>/dev/null && pwd -P ) || { echo "ERROR: $REPO/$1 is not reachable" >&2; exit 1; }; }
+eff() {
+  local d
+  d="$( cd "$REPO/$1" 2>/dev/null && pwd -P )" || { echo "ERROR: $REPO/$1 is not a reachable directory" >&2; exit 1; }
+  case "$d/" in "$REPO/"*) echo "ERROR: $REPO/$1 resolves inside the repository ($d); move it out of the clone" >&2; exit 1 ;; esac
+  printf '%s\n' "$d"
+}
+for n in "${NAMES[@]}"; do eff "$n" >/dev/null; done        # every repo-root name must reach a directory outside the clone
 D_DATA="$(eff data)"; D_RESULTS="$(eff results)"; D_PLOTS="$(eff plots)"
 D_PANC="$(eff pancanatlas_model)"; D_PCAWG="$(eff pcawg_model)"
 # sub-directories the scripts write into without creating them (eval.py: plots/<p>_pretrained/; 01: results/*_features/)

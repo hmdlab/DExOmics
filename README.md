@@ -12,7 +12,8 @@ README, inputs and run commands:
 
 Data, model checkpoints and generated outputs are kept outside the repository (`.gitignore` lists the names the two
 studies use); the only data-like files tracked are small configuration and split tables (`pancancer/config/`,
-`legacy/pretrained_2024/`) and the two demo archives under `sample_data/`. Each study's README says which processed
+`legacy/pretrained_2024/`), the two demo archives under `sample_data/`, the five regulator URL lists in
+`legacy/data_download_2024/` and two server logs in `legacy/run_logs/`. Each study's README says which processed
 inputs are needed and where the 2024 distributions are.
 
 ## Citation

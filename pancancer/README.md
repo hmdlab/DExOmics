@@ -36,7 +36,8 @@ conda env create -f pancancer/environment.yml     # creates `dexomics` (python 3
 conda activate dexomics
 ```
 R >= 4 with the packages actually loaded by the scripts: CRAN tidyverse (dplyr, ggplot2, purrr, readr, stringr),
-data.table, ggpubr, pheatmap, reshape2, patchwork, broom, optparse, caTools; Bioconductor SummarizedExperiment,
+data.table, ggpubr, pheatmap, reshape2, patchwork, broom, optparse, caTools, hexbin (for `geom_hex` in the
+`*_visual.R` scripts); Bioconductor SummarizedExperiment,
 GenomicFeatures, rtracklayer, plyranges, TCGAbiolinks, ComplexHeatmap. (`R_requirements.txt` is the author's shorter
 list and also names clusterProfiler / org.Hs.eg.db, which no script here loads.) The 2024 runs used Ubuntu 24.04 with
 conda 24.4; the batch scripts `01_run.sh`, `04_run.sh`, `05_run.sh` are the SGE/Slurm wrappers used on the server
@@ -44,7 +45,8 @@ and only document arguments. On the device question see section 7.
 
 ## 3. Working directories (read this before running anything)
 
-Every script addresses its inputs and outputs with fixed relative paths from its own directory:
+Every script addresses its inputs and outputs with fixed relative paths that are resolved against the **working
+directory**, which therefore has to be the script's own directory (`cd` there first, as the 2024 batch scripts did):
 
 | run from | path in the code | meaning |
 |---|---|---|
@@ -96,7 +98,7 @@ archive `pancan_data.tar.gz`; the 2024 layout `data/pancan_data/transcriptome/<p
 
 | workspace path | content | produced by |
 |---|---|---|
-| `data/<p>_expid.txt` | per-cancer-type median expression of each gene (prediction target, `n_out` columns) | `03_expr_process` |
+| `data/<p>_expid.txt` | tab-separated; first column `Name` (Ensembl gene ID), then one column per cancer type, last column `MedianExp` (the loader checks both names and subtracts `MedianExp` from the others; `n_out` = all non-`Name` columns incl. `MedianExp`) | `03_expr_process` |
 | `data/modeling/<p>_{train,val,test}.csv` | gene splits (tracked: `config/gene_split/`) | `03_expr_process/split_<p>_data.R` |
 | `data/modeling/<p>_params.json` | hyper-parameters (tracked: `config/`) | distributed; rewritten by `train.py` |
 | `results/rna_features/output_postar_rna.pkl`, `output_postar_rna_feature_name.txt.gz` | RBP binding bins | `01` + `02` (POSTAR3) |
@@ -131,7 +133,7 @@ python 02_to_sparse.py ../results/rna_features/output_postar_rna.txt
 cd 03_expr_process                         # i.e. <repo>/pancancer/03_expr_process
 Rscript get_<p>_exp.R && Rscript split_<p>_data.R
 
-# 4. training, evaluation, performance tables and figures
+# 4. training, evaluation, performance tables and figures  (from the repository root: cd pancancer/04_modeling)
 cd ../04_modeling                          # i.e. <repo>/pancancer/04_modeling
 python train.py ../../<p>_model/reg0.001/ -p <p> -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
 python eval.py  ../../<p>_model/reg0.001/ -p <p> -n 100 -reg 0.001
