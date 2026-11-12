@@ -1,0 +1,11 @@
+tidyverse
+ggpubr
+pheatmap
+optparse
+
+- Bioconductor:
+clusterProfiler
+org.Hs.eg.db
+SummerizedExperiment
+rtracklayer
+plyranges
