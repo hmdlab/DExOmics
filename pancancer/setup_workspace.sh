@@ -20,11 +20,11 @@
 # script after moving the clone or the workspace.
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"      # .../pancancer
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"   # .../pancancer (physical path)
 REPO="$(dirname "$HERE")"                                   # repository root
 WS="${1:-${PANCANCER_WORKSPACE:-$HOME/Data/DExOmics/pancancer}}"
 mkdir -p "$WS"
-WS_ABS="$(cd "$WS" && pwd)"
+WS_ABS="$(cd "$WS" && pwd -P)"                              # physical path, so a symlinked workspace cannot point back into the clone
 case "$WS_ABS/" in
   "$REPO/"*) rmdir "$WS" 2>/dev/null || true
              echo "ERROR: the workspace ($WS_ABS) must be outside the repository ($REPO)" >&2; exit 1 ;;
@@ -47,25 +47,30 @@ for n in "${NAMES[@]}"; do
   fi
 done
 
+# From here on work with the directories the scripts will actually reach through the repo-root names (these equal
+# $WS/<name> unless a KEEP/SKIP line above said otherwise), so that a differently targeted link is prepared too.
+eff() { ( cd "$REPO/$1" 2>/dev/null && pwd -P ) || { echo "ERROR: $REPO/$1 is not reachable" >&2; exit 1; }; }
+D_DATA="$(eff data)"; D_RESULTS="$(eff results)"; D_PLOTS="$(eff plots)"
+D_PANC="$(eff pancanatlas_model)"; D_PCAWG="$(eff pcawg_model)"
 # sub-directories the scripts write into without creating them (eval.py: plots/<p>_pretrained/; 01: results/*_features/)
-mkdir -p "$WS/data/modeling" "$WS/results/rna_features" "$WS/results/promoter_features" "$WS/results/shap" \
-         "$WS/plots/pancanatlas_pretrained" "$WS/plots/pcawg_pretrained" "$WS/pancanatlas_model/reg0.001" "$WS/pcawg_model/reg0.001"
+mkdir -p "$D_DATA/modeling" "$D_RESULTS/rna_features" "$D_RESULTS/promoter_features" "$D_RESULTS/shap" \
+         "$D_PLOTS/pancanatlas_pretrained" "$D_PLOTS/pcawg_pretrained" "$D_PANC/reg0.001" "$D_PCAWG/reg0.001"
 for p in pancanatlas pcawg; do
   for s in train val test; do
-    src="$HERE/config/gene_split/${p}_${s}.csv"; dst="$WS/data/modeling/${p}_${s}.csv"
+    src="$HERE/config/gene_split/${p}_${s}.csv"; dst="$D_DATA/modeling/${p}_${s}.csv"
     [ -e "$dst" ] || { cp "$src" "$dst"; echo "COPY  $dst"; }
   done
-  src="$HERE/config/${p}_params.json"; dst="$WS/data/modeling/${p}_params.json"
+  src="$HERE/config/${p}_params.json"; dst="$D_DATA/modeling/${p}_params.json"
   [ -e "$dst" ] || { cp "$src" "$dst"; echo "COPY  $dst   (train.py rewrites this file in place)"; }
 done
 
 cat <<EOF
 
-Workspace: $WS
+Workspace: $WS   (data -> $D_DATA, results -> $D_RESULTS, plots -> $D_PLOTS)
 Still to be provided per project (pancanatlas, pcawg) -- see pancancer/README.md, section 4:
-  $WS/data/<project>_expid.txt
-  $WS/results/rna_features/output_postar_rna.pkl, output_postar_rna_feature_name.txt.gz
-  $WS/results/rna_features/output_targetscan_rna.pkl, output_targetscan_rna_feature_name.txt.gz
-  $WS/results/promoter_features/output_gtrd_promoter.pkl, output_gtrd_promoter_feature_name.txt.gz
-  (to skip training) $WS/<project>_model/reg0.001/best_model.pth, epoch1..N.pth, feature_norm_stats.txt
+  $D_DATA/<project>_expid.txt
+  $D_RESULTS/rna_features/output_postar_rna.pkl, output_postar_rna_feature_name.txt.gz
+  $D_RESULTS/rna_features/output_targetscan_rna.pkl, output_targetscan_rna_feature_name.txt.gz
+  $D_RESULTS/promoter_features/output_gtrd_promoter.pkl, output_gtrd_promoter_feature_name.txt.gz
+  (to skip training) <project>_model/reg0.001/best_model.pth (+ epoch1..N.pth for eval.py)
 EOF

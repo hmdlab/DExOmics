@@ -13,7 +13,7 @@ where every relative path is as `README_2024.md` describes. The paths were not a
 
 | path | was | why kept |
 |---|---|---|
-| `README_2024.md` | top-level `README.md` as of commit `cd37887` (the 2024 README plus the short "Revision analysis (2026)" pointer that was added in October 2026 and now points to `cancer_specific/`) | the only record of the original command lines and Google Drive links |
+| `README_2024.md` | top-level `README.md` as of commit `cd37887`: the 2024 README plus the short "Revision analysis (2026)" section added in October 2026, whose `analysis/` links are left as they were (that directory is `cancer_specific/` today) | the only record of the original command lines and Google Drive links |
 | `scripts_2024/01_bed_to_RNA_coord.R`, `02_to_sparse.py` | `scripts/` | produced the ENCODE binding features (`encode_hepg2_*`, `encode_hela_*`) that `cancer_specific/02` and `13` still read; the pan-cancer copy of the same scripts is live in `../pancancer/` |
 | `scripts_2024/network.py`, `utils/` | `scripts/` | `ConcatedNet` (2024 cancer-specific model) and the published variant of the pan-cancer helpers (`pancan_*`) in one module |
 | `scripts_2024/pan_cancer/` | `scripts/pan_cancer/` | the pan-cancer entry points as published with the 2024 README: a historical variant of `../pancancer/04_modeling` and `05_interpret` with the same model definition but a different data layout, renamed helpers and, in `compute_shap.py`, the DeepLIFT explainer active instead of Expected Gradients (differences in `../pancancer/README.md` §7). Kept complete, together with `network.py` and `utils/`, until the attribution provenance is settled; not claimed to be computationally identical to the live copy |

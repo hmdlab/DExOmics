@@ -11,11 +11,13 @@ README, inputs and run commands:
 | [`legacy/`](legacy/README.md) | Archived 2024 code: the original cancer-specific pipeline, the published copy of the pan-cancer entry points, the 2024 download scripts, the 2024 README with the Google Drive links. Not runnable from this layout. | — | `legacy/README.md` |
 
 Data, model checkpoints and generated outputs are kept outside the repository (`.gitignore` lists the names the two
-studies use); each study's README says which processed inputs are needed and where the 2024 distributions are.
+studies use); the only data-like files tracked are small configuration and split tables (`pancancer/config/`,
+`legacy/pretrained_2024/`) and the two demo archives under `sample_data/`. Each study's README says which processed
+inputs are needed and where the 2024 distributions are.
 
 ## Citation
 
-If you find this project helpful, please cite the paper above (bibliographic details in `legacy/README_2024.md`).
+If you find this project helpful, please cite the paper above (reference to be added on publication of the revision).
 
 ## License
 

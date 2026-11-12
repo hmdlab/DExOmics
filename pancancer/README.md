@@ -25,8 +25,9 @@ pancancer/
   setup_workspace.sh                     creates the working directories the scripts expect (section 3)
 ```
 
-`<p>` is the project name, `pancanatlas` or `pcawg`. Both are supported by every script through `-p <p>` or a
-positional argument.
+`<p>` is the project name, `pancanatlas` or `pcawg`. `04_modeling` and `05_interpret` take it as `-p <p>` or as a
+positional argument; `03_expr_process` has one script per project (`get_<p>_exp.R`, `split_<p>_data.R`), and
+`01_run.sh` is project-independent.
 
 ## 2. Environment
 
@@ -34,10 +35,12 @@ positional argument.
 conda env create -f pancancer/environment.yml     # creates `dexomics` (python 3.8, torch 1.13, shap 0.44, numpy 1.24, pandas 2.0)
 conda activate dexomics
 ```
-R >= 4 with the packages in `R_requirements.txt` (tidyverse, ggpubr, pheatmap, optparse; Bioconductor
-SummarizedExperiment, rtracklayer, plyranges, clusterProfiler, org.Hs.eg.db; `03_expr_process` additionally loads
-TCGAbiolinks and caTools). The 2024 runs used Ubuntu 24.04 with conda 24.4 (CPU or GPU; the batch scripts
-`01_run.sh`, `04_run.sh`, `05_run.sh` are the SGE/Slurm wrappers used on the server and only document arguments).
+R >= 4 with the packages actually loaded by the scripts: CRAN tidyverse (dplyr, ggplot2, purrr, readr, stringr),
+data.table, ggpubr, pheatmap, reshape2, patchwork, broom, optparse, caTools; Bioconductor SummarizedExperiment,
+GenomicFeatures, rtracklayer, plyranges, TCGAbiolinks, ComplexHeatmap. (`R_requirements.txt` is the author's shorter
+list and also names clusterProfiler / org.Hs.eg.db, which no script here loads.) The 2024 runs used Ubuntu 24.04 with
+conda 24.4; the batch scripts `01_run.sh`, `04_run.sh`, `05_run.sh` are the SGE/Slurm wrappers used on the server
+and only document arguments. On the device question see section 7.
 
 ## 3. Working directories (read this before running anything)
 
@@ -100,18 +103,23 @@ archive `pancan_data.tar.gz`; the 2024 layout `data/pancan_data/transcriptome/<p
 | `results/rna_features/output_targetscan_rna.pkl`, `output_targetscan_rna_feature_name.txt.gz` | miRNA target-site bins | `01` + `02` (TargetScan) |
 | `results/promoter_features/output_gtrd_promoter.pkl`, `output_gtrd_promoter_feature_name.txt.gz` | TF binding bins | `01` + `02` (GTRD) |
 
-To evaluate or interpret the distributed models without training, add `<p>_model/reg0.001/best_model.pth`,
-`epoch1..100.pth` (`eval.py` loads every epoch) and `feature_norm_stats.txt` from the "pretrained models" Drive
-folder of the 2024 README.
+To skip training: `eval.py` loads `<outloc>best_model.pth` and every `<outloc>epoch<N>.pth` (N = 1..`-n`), so all
+epoch checkpoints from the "pretrained models" Drive folder of the 2024 README are needed in `<p>_model/reg0.001/`;
+`compute_shap.py` needs only `<p>_model/reg0.001/best_model.pth`. `feature_norm_stats.txt` is not an input: both
+scripts recompute it from the training split and `eval.py` rewrites `<outloc>feature_norm_stats.txt`
+(`utils/data_tool.py`, `prep_ml_data_split`); `summarize_SHAP.R` and the R plotting scripts then read that
+rewritten copy from `<p>_model/reg0.001/`.
 
-`sample_data/pcawg_sample.zip` contains the same file set for a small gene subset and can be used to check that the
-environment loads the inputs; no script depends on it.
+`sample_data/pcawg_sample.zip` holds a small-gene-subset version of `pcawg_expid.txt` and of the six feature files
+(pkl + names) — not the gene splits or the parameter file — and can be used to check that the environment loads the
+inputs; no script depends on it.
 
 ## 5. Running
 
 All commands below assume the workspace of section 3 and the `dexomics` environment. `<p>` = `pancanatlas` or `pcawg`.
 
 ```bash
+# all blocks start from the repository root
 # 1-2. binding features (only if the pkl files are regenerated; see 01_run.sh for the exact arguments)
 cd pancancer
 Rscript 01_bed_to_RNA_coord.R -b ../../data/postar3/bed_rna -n 100 -g ../data/references_v8_gencode.v26.GRCh38.genes.gtf \
@@ -120,18 +128,18 @@ python 02_to_sparse.py ../results/rna_features/output_postar_rna.txt
 # (repeat with -s GTRD -t promoter -> ../results/promoter_features/output_gtrd_promoter, and -s TARGETSCAN -t rna -> output_targetscan_rna)
 
 # 3. expression target and gene splits (raw tables of section 4a required)
-cd pancancer/03_expr_process
+cd ../03_expr_process                      # i.e. <repo>/pancancer/03_expr_process
 Rscript get_<p>_exp.R && Rscript split_<p>_data.R
 
 # 4. training, evaluation, performance tables and figures
-cd pancancer/04_modeling
+cd ../04_modeling                          # i.e. <repo>/pancancer/04_modeling
 python train.py ../../<p>_model/reg0.001/ -p <p> -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
 python eval.py  ../../<p>_model/reg0.001/ -p <p> -n 100 -reg 0.001
 Rscript calc_performance.R <p>
 Rscript <p>_visual.R <p>
 
 # 5. attribution
-cd pancancer/05_interpret
+cd ../05_interpret                         # i.e. <repo>/pancancer/05_interpret
 python compute_shap.py ../../results/shap/ExpectedGrad_<p>/ -p <p>        # see section 7 on the explainer
 Rscript summarize_SHAP.R 0.001 <p> ../../results/shap/ExpectedGrad_<p>/   # args: l2 regularisation, project, SHAP directory
 Rscript shap_plot.R <p> ../../results/shap/ExpectedGrad_<p>/ ../../plots/
@@ -175,8 +183,11 @@ None of these are tracked by git.
   regardless of which explainer block is active in `compute_shap.py`. The label is not evidence of the method.
 * `environment.yml` was exported on Linux and pins Linux builds; on macOS create the environment from the package
   list by hand (python 3.8, torch 1.13, shap 0.44, numpy 1.24, pandas 2.0, scikit-learn, scipy, matplotlib, seaborn).
-* `eval.py` and `compute_shap.py` call `torch.load` without `map_location`; checkpoints saved on a GPU need a GPU
-  (or a one-line `map_location='cpu'` edit, not made here) to load on a CPU-only machine.
+* Device handling, as written: `train.py`, `eval.py`, `compute_shap.py` and `utils/model_utils.py::evaluate` move the
+  input tensors to `cuda:0` when CUDA is available but never move the model, and read outputs with `.numpy()`
+  without `.cpu()`. On a CUDA machine this raises a device mismatch; on a machine without CUDA everything stays on
+  the CPU and runs (the server wrappers request a GPU, so the 2024 runs were either CPU runs or used a copy with the
+  model moved to the device — to be confirmed by the authors). `torch.load` is called without `map_location`.
 * `04_modeling/utils/generate_data.py` writes a synthetic 3-class demo table to `../../results/demo_*.csv` (relative
   to the working directory `04_modeling/`); nothing reads it.
 
