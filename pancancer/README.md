@@ -128,7 +128,7 @@ python 02_to_sparse.py ../results/rna_features/output_postar_rna.txt
 # (repeat with -s GTRD -t promoter -> ../results/promoter_features/output_gtrd_promoter, and -s TARGETSCAN -t rna -> output_targetscan_rna)
 
 # 3. expression target and gene splits (raw tables of section 4a required)
-cd ../03_expr_process                      # i.e. <repo>/pancancer/03_expr_process
+cd 03_expr_process                         # i.e. <repo>/pancancer/03_expr_process
 Rscript get_<p>_exp.R && Rscript split_<p>_data.R
 
 # 4. training, evaluation, performance tables and figures
