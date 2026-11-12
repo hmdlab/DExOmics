@@ -1,128 +1,22 @@
 # DExOmics
-This repository provides code and processed data for the paper:  
-**"An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in Cancer"**.
 
+Code for the paper **"An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in
+Cancer"** and for its 2026 revision. The repository holds two independent studies, each with its own environment,
+README, inputs and run commands:
 
-## Revision analysis (2026)
+| directory | study | environment | start here |
+|---|---|---|---|
+| [`pancancer/`](pancancer/README.md) | Pan-cancer model (PanCanAtlas and PCAWG): interactome CNN predicting per-cancer-type expression from TF / RBP / miRNA binding features, with SHAP attribution. Original 2024 code, unchanged. | Python 3.8, PyTorch 1.13 (`pancancer/environment.yml`), R | `bash pancancer/setup_workspace.sh`, then `pancancer/README.md` §4–5 |
+| [`cancer_specific/`](cancer_specific/README.md) | Cancer-specific model (TCGA-LIHC, external replication in ICGC LIRI-JP, frozen TCGA-CESC confirmation): revised 2026 pipeline with TCGA-only labels, chromosome-blocked nested CV, XGBoost + positional CNN ensemble, interpretation. | Python 3.12, PyTorch 2.x (`cancer_specific/requirements.txt`), R for one step | `bash cancer_specific/run_all.sh data`, then `all` |
+| [`legacy/`](legacy/README.md) | Archived 2024 code: the original cancer-specific pipeline, the published copy of the pan-cancer entry points, the 2024 download scripts, the 2024 README with the Google Drive links. Not runnable from this layout. | — | `legacy/README.md` |
 
-The scripts behind the 2026 revision of the cancer-specific analysis (TCGA-only labels, chromosome-blocked
-nested CV, external replication in ICGC LIRI-JP, positional CNN + XGBoost ensemble, frozen CESC confirmation,
-interpretation) are in [`analysis/`](analysis/README.md). They are independent of the original pipeline below:
-`pip install -r analysis/requirements.txt`, then `bash analysis/run_all.sh data` and `bash analysis/run_all.sh all`
-(see `analysis/README.md` for the data layout, stage order and run times).
+Data, model checkpoints and generated outputs are kept outside the repository (`.gitignore` lists the names the two
+studies use); each study's README says which processed inputs are needed and where the 2024 distributions are.
 
-## 1. Dependencies
-**Tested Environment**\
-OS: Ubuntu 24.04.1 LTS\
-Kernel: 6.8.0-51-generic\
-conda: 24.4.0
+## Citation
 
-To recreate the virtual environment, run:
+If you find this project helpful, please cite the paper above (bibliographic details in `legacy/README_2024.md`).
 
-```bash
-git clone https://github.com/hmdlab/DExOmics.git
-cd DExOmics
-conda env create -f dependencies_all.yml
-conda activate dexomics
-```
+## License
 
-
-## 2. Data Sources
-All data downloading scripts are provided under the `data_download/` directory.
-### Pan-cancer study
-- Create a directory:
-    ```bash
-    mkdir data
-    ```
-- Download the archive [pancan_data.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link) and place it inside the `data` directory.
-
-### Cancer-specific study
-- Run the following command to download TCGA omics data for LIHC and CESC:
-    ```bash
-    Rscript load_*.R [cancer_type]
-    ```
-    Output files will be stored under `data/TCGAdata/`.
-
-- Transcription factor (TF) and RNA-binding protein (RBP) binding peak files are defined in `.txt.gz` files under `data_download/`. To download them, run:
-    ```bash
-    bash load_regulator.sh
-    ```
-Metadata needs to be manually downloaded from the first lines of the files and placed into according directories.
-
-- Additionally, download [human.txt.gz](https://cloud.tsinghua.edu.cn/d/8133e49661e24ef7a915/files/?p=%2Fhuman.txt.gz&dl=1) from POSTAR3 and place it in the `data/` directory.
-You can extract HeLa RBP-binding BED files using:
-    ```bash
-    Rscript split_HeLa.R
-    ```
-
-
-## 3. Proprocessing and Integration
-### Mapping BED Features to RNA Coordinates
-Convert BED-format genomic interactions to transcript-relative coordinates and sparse matrices:
-```bash
-mkdir data/promoter_features
-Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "promoter" -o "../data/promoter_features/encode_hepg2_promoter" -s "ENCODE"
-python 02_to_sparse.py ../data/promoter_features/encode_hepg2_promoter.txt
-
-mkdir data/rna_features
-Rscript 01_bed_to_RNA_coord.R -b "../data/HepG2_bed_rna" -n 100 -g "../data/pancan_data/references_v8_gencode.v26.GRCh38.genes.gtf" -t "rna" -o "../data/rna_features/encode_hepg2_rna" -s "ENCODE"
-python 02_to_sparse.py ../data/rna_features/encode_hepg2_rna.txt
-```
->`Arguments:`\
-`-b`: BED file directory\
-`-n`: Bin size (genomic resolution)\
-`-g`: Path to the GTF annotation\
-`-t`: Type ("promoter" or "rna")\
-`-o`: Output path\
-`-s`: Data source name
-
-You can also download preprocessed files:
-- [promoter_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
-- [rna_features.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link)
-
-### TCGA Data Preprocessing and Integration
-First, download the [Methylation Array Gene Annotation File](https://api.gdc.cancer.gov/v0/data/021a2330-951d-474f-af24-1acd77e7664f), place it in `data/TCGAdata/`, and unzip. From `scripts/cancer_specific/`, run:
-```bash
-Rscript data_observe.R LIHC
-Rscript dea.R LIHC hepg2
-Rscript data_merge.R LIHC hepg2 TRUE    # TRUE to merge with ENCODE expression data
-python get_HepG2_genes.py LIHC hepg2
-```
->Replace arguments with the desired TCGA project and related cell line.
-The processed data is also available as [TCGAprocessed.tar.gz](https://drive.google.com/drive/folders/1etIOFisUnMDNoQ5UAiMHyz3Mo2n49dAk?usp=drive_link).
-
-
-## 4. Analysis
-### Pan-cancer study
-Train and evaluate the model under `scripts/pan_cancer/`:
-```bash
-python pretrain.py ../../pancanatlas_model/ -p pancanatlas -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
-python eval.py ../../pancanatlas_model/ -p pancanatlas -n 100 -reg 0.001
-Rscript calc_performance.R pancanatlas
-```
-
-Interpret results using DeepLIFT:
-```bash
-python compute_shap.py ../../shap/DeepLIFT_pancanatlas/ -p pancanatlas
-Rscript summarize_SHAP.R pancanatlas ../../shap/DeepLIFT_pancanatlas/
-Rscript shap_plot.R pancanatlas ../../shap/DeepLIFT_pancanatlas/ ../../plots_pancanatlas/
-```
-
-### Cancer-specific study
-Under `scripts/cancer_specific/`, train and evaluate the model:
-```bash
-python pretrain.py LIHC hepg2 ../../model_LIHC/concat/ -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.0001
-python eval.py LIHC hepg2 ../../model_LIHC/concat/ -n 100 -reg 0.0001
-```
-
-Interpret using ExpectedGrad:
-```bash
-python compute_shap.py LIHC hepg2 ../../shap/ExpectedGrad_LIHC/
-Rscript summarize_SHAP.R LIHC ../../shap/ExpectedGrad_LIHC/
-Rscript shap_plot.R ../../shap/ExpectedGrad_LIHC/ ../../plots_LIHC/global/
-```
->You can substitute `LIHC/hepg2` with other projects and cell lines (e.g., `CESC/hela`).
-Pretrained models are available [here](https://drive.google.com/drive/folders/115VOsmUTsXhxcnQ6qf4_8ZRSEP29KyJO?usp=drive_link), and the resulting metrics are recorded [here](https://drive.google.com/drive/folders/1kjnYI5AQ6HweQK8UYlRJwLyVV5u1za6K?usp=drive_link)
-
-## 5. Citation
-If you find this project helpful, please cite:
+See `LICENSE`.

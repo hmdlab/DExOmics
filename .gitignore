@@ -1,0 +1,28 @@
+# editor / OS / Python
+__pycache__/
+*.pyc
+.DS_Store
+.Rhistory
+.ipynb_checkpoints/
+
+# model checkpoints and generated outputs are never tracked
+*.pth
+
+# pan-cancer workspace. The 2024 pan-cancer code resolves ../../<name> from pancancer/04_modeling/ and
+# pancancer/05_interpret/, i.e. these names at the repository root. pancancer/setup_workspace.sh creates
+# them as symlinks into a workspace outside the repository (default ~/Data/DExOmics/pancancer).
+/data
+/results
+/plots
+/pancanatlas_model
+/pcawg_model
+/test_metrics_pancanatlas
+/test_metrics_pcawg
+# names used by the 2024 README commands of the archived copy (legacy/scripts_2024)
+/metrics
+/shap
+/plots_*
+/model_*
+
+# cancer_specific figure scripts drop PNG copies here (project root = parent of cancer_specific/)
+/notes/figures/
