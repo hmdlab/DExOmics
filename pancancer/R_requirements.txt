@@ -6,6 +6,6 @@ optparse
 - Bioconductor:
 clusterProfiler
 org.Hs.eg.db
-SummerizedExperiment
+SummarizedExperiment
 rtracklayer
 plyranges
