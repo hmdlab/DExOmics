@@ -3,8 +3,8 @@
 Code of the pan-cancer part of *An Interpretable Multi-Omics Integration Framework for Differential Expression
 Prediction in Cancer* (PanCanAtlas and PCAWG). This directory is the original project as recovered from the
 author's server (`DEomics_Pancancer/`, imported 2026-11-12 as `pancancer_source/` and renamed here); the scripts
-are unchanged. The copy that was published with the 2024 README (`scripts/pan_cancer/`, `scripts/network.py`,
-`scripts/utils/`) is archived under `../legacy/scripts_2024/`; see section 7 for the differences.
+are unchanged. The copy that was published with the 2024 README (`scripts/pan_cancer/`, `scripts/network.py`),
+The pre-restructuring published implementation is preserved in the `pre-restructure-2026` Git tag. 
 
 The study has its own environment (Python 3.8 / PyTorch 1.13 / shap 0.44, `environment.yml`) and does not share
 code or an environment with the revised cancer-specific study in `../cancer_specific/`.
@@ -84,7 +84,7 @@ so the two workspaces do not collide even when they share the same parent direct
 | `03_expr_process/get_pancanatlas_exp.R` | `../data/GDCdata/PanCanAtlas/EBPlusPlusAdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp.tsv`, `clinical_PANCAN_patient_with_followup.tsv` | GDC PanCanAtlas publication files |
 | `03_expr_process/get_pcawg_exp.R` | `../data/GDCdata/PCAWG/tophat_star_fpkm.v2_aliquot_gl.tsv`, `rnaseq.extended.metadata.aliquot_id.V4.tsv` | PCAWG expression release |
 | `03_expr_process/split_*.R` | `data/modeling/{rbp_genes,miRNA_genes,tf_genes}.csv` | regulator gene lists; **not produced by any script in this repository** (origin to be documented) |
-| `03_expr_process/split_*.R` | `../DEomics/data/TCGAdata/LIHC/LIHC.exp.rda` | gene annotation taken from the TCGA-LIHC download of the 2024 cancer-specific study (`legacy/data_download_2024/load_expr.R`) |
+| `03_expr_process/split_*.R` | `../DEomics/data/TCGAdata/LIHC/LIHC.exp.rda` | gene annotation taken from the TCGA-LIHC download of the 2024 cancer-specific study (the 2024 cancer-specific preprocessing code preserved in the `pre-restructure-2026` tag) |
 
 Only the POSTAR3 line of `01_run.sh` is active; the GTRD and TargetScan lines are commented out although their
 outputs (`output_gtrd_promoter.pkl`, `output_targetscan_rna.pkl`) are required inputs of `04`/`05`.
@@ -92,7 +92,7 @@ outputs (`output_gtrd_promoter.pkl`, `output_targetscan_rna.pkl`) are required i
 ### 4b. Minimum processed input bundle (the supported starting point)
 
 Regenerating 4a is not practical for most users. `04_modeling` and `05_interpret` need exactly the following files
-per project, as they were distributed with the 2024 paper (Google Drive folder linked from `../legacy/README_2024.md`,
+per project, as they were distributed with the 2024 paper (the README preserved in the `pre-restructure-2026` tag,
 archive `pancan_data.tar.gz`; the 2024 layout `data/pancan_data/transcriptome/<p>_expid.txt`,
 `data/pancan_data/{rna,promoter}_features/` maps onto the workspace as shown):
 
@@ -168,7 +168,7 @@ None of these are tracked by git.
 * `compute_shap.py` contains both a DeepLIFT block (`shap.DeepExplainer`) and an Expected Gradients block
   (`shap.GradientExplainer`); one of them is commented out with a `'''` string. In this recovered version the
   **GradientExplainer block is active** and the DeepLIFT block is commented out; in the published copy
-  (`legacy/scripts_2024/pan_cancer/compute_shap.py`) it is the other way round. The output file names are the
+  (`git show pre-restructure-2026:scripts/pan_cancer/compute_shap.py`) it is the other way round. The output file names are the
   same for both methods, so the method is only identifiable from the output directory name used
   (`05_run.sh` uses `DeepLIFT_<p>` and `ExpectedGrad_<p>`). Which method produced the manuscript values has to be
   confirmed by the authors; the code was not changed here.
