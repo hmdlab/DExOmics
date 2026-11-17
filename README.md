@@ -1,22 +1,68 @@
-Code for the paper **"An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in
-Cancer"** and for its 2026 revision. The repository holds two independent studies, each with its own environment,
-README, inputs and run commands:
+# DExOmics
 
-| directory | study | environment | start here |
+Code for **“An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in Cancer”** and its 2026 revision.
+
+The repository contains two independent analysis workflows:
+
+| Directory | Study | Environment | Start here |
 |---|---|---|---|
-| [`pancancer/`](pancancer/README.md) | Pan-cancer model (PanCanAtlas and PCAWG): interactome CNN predicting per-cancer-type expression from TF / RBP / miRNA binding features, with SHAP attribution. Original 2024 code, unchanged. | Python 3.8, PyTorch 1.13 (`pancancer/environment.yml`), R | `bash pancancer/setup_workspace.sh`, then `pancancer/README.md` §4–5 |
-| [`cancer_specific/`](cancer_specific/README.md) | Cancer-specific model (TCGA-LIHC, external replication in ICGC LIRI-JP, frozen TCGA-CESC confirmation): revised 2026 pipeline with TCGA-only labels, chromosome-blocked nested CV, XGBoost + positional CNN ensemble, interpretation. | Python 3.12, PyTorch 2.x (`cancer_specific/requirements.txt`), R for one step | `bash cancer_specific/run_all.sh data`, then `all` |
-| [`legacy/`](legacy/README.md) | Archived 2024 code: the original cancer-specific pipeline, the published copy of the pan-cancer entry points, the 2024 download scripts, the 2024 README with the Google Drive links. Not runnable from this layout. | — | `legacy/README.md` |
+| [`pancancer/`](pancancer/README.md) | Pan-cancer analysis using PanCanAtlas and PCAWG. An interactome CNN predicts cancer-type-specific expression patterns from TF, RBP, and miRNA binding features, followed by SHAP-based interpretation. | Python 3.8, PyTorch 1.13, R | See `pancancer/README.md` |
+| [`cancer_specific/`](cancer_specific/README.md) | Revised cancer-specific analysis using TCGA-LIHC, external validation in ICGC LIRI-JP, and frozen confirmation in TCGA-CESC. Includes chromosome-blocked validation, XGBoost and position-aware CNN models, pretraining, ensemble evaluation, and interpretation. | Python 3.12, PyTorch 2.x, R | `bash cancer_specific/run_all.sh data`, then `bash cancer_specific/run_all.sh all` |
 
-Data, model checkpoints and generated outputs are kept outside the repository (`.gitignore` lists the names the two
-studies use); Historical pre-restructuring code is preserved in the `pre-restructure-2026` Git tag.
+The two studies are computationally independent and maintain separate environments and input conventions.
 
-Data, model checkpoints, and generated outputs are kept outside the repository. Small configuration files and gene splits required by the pan-cancer workflow are tracked under `pancancer/config/`. Each study's README says which processed inputs are needed and where the 2024 distributions are.
+## Repository structure
+
+```text
+DExOmics/
+├── README.md
+├── LICENSE
+├── pancancer/
+│   ├── README.md
+│   ├── environment.yml
+│   ├── R_requirements.txt
+│   ├── setup_workspace.sh
+│   ├── config/
+│   ├── 03_expr_process/
+│   ├── 04_modeling/
+│   └── 05_interpret/
+└── cancer_specific/
+    ├── README.md
+    ├── environment.yml
+    ├── requirements.txt
+    ├── run_all.sh
+    ├── gdc/
+    └── analysis scripts
+```
+
+Large datasets, trained model checkpoints, intermediate results, and generated figures are intentionally kept outside the Git repository. Small configuration files and fixed gene splits required by the pan-cancer workflow are tracked under `pancancer/config/`.
+
+Historical code from before the 2026 repository restructuring is preserved in the Git tag:
+
+```bash
+git checkout pre-restructure-2026
+```
+
+Individual historical files can also be inspected without changing branches, for example:
+
+```bash
+git show pre-restructure-2026:scripts/pan_cancer/compute_shap.py
+```
+
+## Reproducibility
+
+The revised cancer-specific workflow has a single driver:
+
+```bash
+bash cancer_specific/run_all.sh --data-root /path/to/data all
+```
+
+The pan-cancer workflow retains the computational structure of the recovered 2024 project and requires a separate external workspace for data, checkpoints, and outputs. See [`pancancer/README.md`](pancancer/README.md) for the required processed inputs and commands.
 
 ## Citation
 
-If you find this project helpful, please cite the paper above (reference to be added on publication of the revision).
+If you use this project, please cite the associated paper. Citation information will be added upon publication of the revision.
 
 ## License
 
-See `LICENSE`.
+See [`LICENSE`](LICENSE).

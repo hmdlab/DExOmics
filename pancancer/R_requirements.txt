@@ -1,11 +1,19 @@
+# CRAN
 tidyverse
+data.table
 ggpubr
 pheatmap
+reshape2
+patchwork
+broom
 optparse
+caTools
+hexbin
 
-- Bioconductor:
-clusterProfiler
-org.Hs.eg.db
+# Bioconductor
 SummarizedExperiment
+GenomicFeatures
 rtracklayer
 plyranges
+TCGAbiolinks
+ComplexHeatmap

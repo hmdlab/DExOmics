@@ -1,209 +1,405 @@
-# DExOmics pan-cancer study (`pancancer/`)
+# DExOmics pan-cancer study
 
-Code of the pan-cancer part of *An Interpretable Multi-Omics Integration Framework for Differential Expression
-Prediction in Cancer* (PanCanAtlas and PCAWG). This directory is the original project as recovered from the
-author's server (`DEomics_Pancancer/`, imported 2026-11-12 as `pancancer_source/` and renamed here); the scripts
-are unchanged. The copy that was published with the 2024 README (`scripts/pan_cancer/`, `scripts/network.py`),
-The pre-restructuring published implementation is preserved in the `pre-restructure-2026` Git tag. 
+This directory contains the pan-cancer component of **“An Interpretable Multi-Omics Integration Framework for Differential Expression Prediction in Cancer”**.
 
-The study has its own environment (Python 3.8 / PyTorch 1.13 / shap 0.44, `environment.yml`) and does not share
-code or an environment with the revised cancer-specific study in `../cancer_specific/`.
+The workflow uses PanCanAtlas and PCAWG expression data together with positional TF, RBP, and miRNA binding features. An interactome CNN predicts cancer-type-specific expression patterns, followed by attribution analysis.
+
+The core computational scripts were recovered from the original server project (`DEomics_Pancancer`) and reorganized under `pancancer/` during the 2026 repository restructuring. The pre-restructuring repository state is preserved in the Git tag `pre-restructure-2026`.
+
+The pan-cancer study is independent of the revised workflow in `../cancer_specific/`.
 
 ## 1. Layout
 
-```
+```text
 pancancer/
-  01_bed_to_RNA_coord.R, 01_run.sh      regulator BED files -> transcript-relative bins (POSTAR3 / GTRD / TargetScan / ENCODE)
-  02_to_sparse.py                        binned table -> sparse pickle
-  03_expr_process/                       PanCanAtlas / PCAWG expression tables -> per-cancer-type median expression, gene splits
-  04_modeling/                           train.py, eval.py, network.py (interactome_CNN), utils/, calc_performance.R, *_visual.R
-  05_interpret/                          compute_shap.py, summarize_SHAP.R, shap_plot.R
-  config/{pancanatlas,pcawg}_params.json model hyper-parameters as distributed (copied into the workspace, see section 3)
-  config/gene_split/<p>_{train,val,test}.csv  gene splits as distributed (chromosome 1 = test)
-  sample_data/pcawg_sample.zip           small example of the processed inputs (not used by any script)
-  environment.yml, R_requirements.txt    conda environment (2024: `dexomics`) and R packages
-  setup_workspace.sh                     creates the working directories the scripts expect (section 3)
+├── 01_bed_to_RNA_coord.R
+├── 02_to_sparse.py
+├── 03_expr_process/
+│   ├── get_pancanatlas_exp.R
+│   ├── get_pcawg_exp.R
+│   ├── split_pancanatlas_data.R
+│   └── split_pcawg_data.R
+├── 04_modeling/
+│   ├── train.py
+│   ├── eval.py
+│   ├── network.py
+│   ├── calc_performance.R
+│   ├── pancanatlas_visual.R
+│   ├── pcawg_visual.R
+│   └── utils/
+├── 05_interpret/
+│   ├── compute_shap.py
+│   ├── summarize_SHAP.R
+│   └── shap_plot.R
+├── config/
+│   ├── pancanatlas_params.json
+│   ├── pcawg_params.json
+│   └── gene_split/
+├── environment.yml
+├── R_requirements.txt
+└── setup_workspace.sh
 ```
 
-`<p>` is the project name, `pancanatlas` or `pcawg`. `04_modeling` and `05_interpret` take it as `-p <p>` or as a
-positional argument; `03_expr_process` has one script per project (`get_<p>_exp.R`, `split_<p>_data.R`), and
-`01_run.sh` is project-independent.
+`<p>` below refers to either `pancanatlas` or `pcawg`.
 
 ## 2. Environment
 
+The recovered workflow was developed with Python 3.8 and PyTorch 1.13.
+
 ```bash
-conda env create -f pancancer/environment.yml     # creates `dexomics` (python 3.8, torch 1.13, shap 0.44, numpy 1.24, pandas 2.0)
+conda env create -f pancancer/environment.yml
 conda activate dexomics
 ```
-R >= 4 with the packages actually loaded by the scripts: CRAN tidyverse (dplyr, ggplot2, purrr, readr, stringr),
-data.table, ggpubr, pheatmap, reshape2, patchwork, broom, optparse, caTools, hexbin (for `geom_hex` in the
-`*_visual.R` scripts); Bioconductor SummarizedExperiment,
-GenomicFeatures, rtracklayer, plyranges, TCGAbiolinks, ComplexHeatmap. (`R_requirements.txt` is the author's shorter
-list and also names clusterProfiler / org.Hs.eg.db, which no script here loads.) The 2024 runs used Ubuntu 24.04 with
-conda 24.4; the batch scripts `01_run.sh`, `04_run.sh`, `05_run.sh` are the SGE/Slurm wrappers used on the server
-and only document arguments. On the device question see section 7.
 
-## 3. Working directories (read this before running anything)
+The Python environment includes the versions used by the recovered project, including approximately:
 
-Every script addresses its inputs and outputs with fixed relative paths that are resolved against the **working
-directory**, which therefore has to be the script's own directory (`cd` there first, as the 2024 batch scripts did):
-
-| run from | path in the code | meaning |
-|---|---|---|
-| `pancancer/04_modeling/`, `pancancer/05_interpret/` | `../../data/<p>_expid.txt`, `../../data/modeling/` | processed expression target, gene splits, `<p>_params.json` |
-| same | `../../results/rna_features/`, `../../results/promoter_features/` | sparse binding features (01 + 02 outputs) |
-| same | `../../<p>_model/reg0.001/` | checkpoints (`best_model.pth`, `epoch<N>.pth`) and `feature_norm_stats.txt` |
-| same | `../../test_metrics_<p>/`, `../../plots/`, `../../results/shap/` | evaluation tables, figures, SHAP values |
-| `pancancer/` (01_run.sh) | `../data/<gtf>`, `../results/{rna,promoter}_features/`, `../../data/<regulator BEDs>` | 01 inputs and outputs |
-| `pancancer/03_expr_process/` | `../../../data/GDCdata/`, `../../../DEomics/data/TCGAdata/LIHC/LIHC.exp.rda` | raw source tables, see section 4a |
-
-With the code under `pancancer/`, `../../<name>` is the repository root. Do **not** create these directories inside
-the clone; run
-
-```bash
-bash pancancer/setup_workspace.sh [WORKSPACE]      # default WORKSPACE: $PANCANCER_WORKSPACE or ~/Data/DExOmics/pancancer
+```text
+Python 3.8
+PyTorch 1.13
+SHAP 0.44
+NumPy 1.24
+pandas 2.0
+scikit-learn 1.3
+SciPy 1.10
 ```
 
-once. It creates `data/`, `results/`, `plots/`, `pancanatlas_model/`, `pcawg_model/`, `test_metrics_pancanatlas/`,
-`test_metrics_pcawg/` at the repository root as symlinks into the workspace (all ignored by git, see `.gitignore`)
-and copies `config/<p>_params.json` and `config/gene_split/<p>_*.csv` to `<workspace>/data/modeling/`. The
-parameter file is copied rather than linked because `train.py` rewrites `data/modeling/<p>_params.json` in place
-(it stores the input dimensions it infers from the data); the tracked copy in `config/` stays as distributed.
+The R scripts require the packages listed in `R_requirements.txt`.
 
-The `cancer_specific/` study does not use any of these names (it takes `--data-root`, default `~/Data/DExOmics`),
-so the two workspaces do not collide even when they share the same parent directory.
+The environment file lists the direct dependencies required by the pan-cancer workflow rather than the full platform-specific package export from the original server environment. The original environment snapshot
+remains available through the `pre-restructure-2026` Git tag. On another operating system, recreating the environment from the main Python and R dependencies may be preferable to reproducing every build pin.
+
+## 3. Workspace
+
+The original pan-cancer code uses fixed relative paths for inputs and outputs. To keep datasets, checkpoints, and generated results outside the Git repository, prepare an external workspace:
+
+```bash
+bash pancancer/setup_workspace.sh /path/to/pancancer_workspace
+```
+
+If no path is supplied, the script uses:
+
+```text
+$PANCANCER_WORKSPACE
+```
+
+or, if that variable is unset:
+
+```text
+~/Data/DExOmics/pancancer
+```
+
+The setup script creates repository-root symlinks pointing to the external workspace:
+
+```text
+data/
+results/
+plots/
+pancanatlas_model/
+pcawg_model/
+test_metrics_pancanatlas/
+test_metrics_pcawg/
+```
+
+It also copies the tracked parameter files and fixed gene splits from `pancancer/config/` into:
+
+```text
+<workspace>/data/modeling/
+```
+
+The parameter files are copied rather than linked because `train.py` modifies them in place when recording inferred input dimensions.
+
+The cancer-specific study does not use these paths and can use a separate `--data-root`.
 
 ## 4. Inputs
 
-### 4a. Raw inputs (outside the repository; needed only to regenerate the processed bundle)
+### 4.1 Supported starting point
 
-| used by | file(s) | origin |
-|---|---|---|
-| `01_run.sh` | `data/references_v8_gencode.v26.GRCh38.genes.gtf` | GENCODE v26 (also in the 2024 Drive archive `pancan_data.tar.gz`) |
-| `01_run.sh` | `../data/postar3/bed_rna/`, `../data/gtrd/Meta-clusters_by_TF/bed/`, `../data/targetscan/hg38_beds/` (sibling of the repository) | POSTAR3, GTRD, TargetScan BED files; the extraction of the BED directories from the database downloads is not scripted here |
-| `03_expr_process/get_pancanatlas_exp.R` | `../data/GDCdata/PanCanAtlas/EBPlusPlusAdjustPANCAN_IlluminaHiSeq_RNASeqV2.geneExp.tsv`, `clinical_PANCAN_patient_with_followup.tsv` | GDC PanCanAtlas publication files |
-| `03_expr_process/get_pcawg_exp.R` | `../data/GDCdata/PCAWG/tophat_star_fpkm.v2_aliquot_gl.tsv`, `rnaseq.extended.metadata.aliquot_id.V4.tsv` | PCAWG expression release |
-| `03_expr_process/split_*.R` | `data/modeling/{rbp_genes,miRNA_genes,tf_genes}.csv` | regulator gene lists; **not produced by any script in this repository** (origin to be documented) |
-| `03_expr_process/split_*.R` | `../DEomics/data/TCGAdata/LIHC/LIHC.exp.rda` | gene annotation taken from the TCGA-LIHC download of the 2024 cancer-specific study (the 2024 cancer-specific preprocessing code preserved in the `pre-restructure-2026` tag) |
+For most users, the practical starting point is the processed input bundle rather than regeneration from raw source databases.
 
-Only the POSTAR3 line of `01_run.sh` is active; the GTRD and TargetScan lines are commented out although their
-outputs (`output_gtrd_promoter.pkl`, `output_targetscan_rna.pkl`) are required inputs of `04`/`05`.
+For each project (`pancanatlas` or `pcawg`), the modeling workflow requires:
 
-### 4b. Minimum processed input bundle (the supported starting point)
+```text
+data/<p>_expid.txt
 
-Regenerating 4a is not practical for most users. `04_modeling` and `05_interpret` need exactly the following files
-per project, as they were distributed with the 2024 paper (the README preserved in the `pre-restructure-2026` tag,
-archive `pancan_data.tar.gz`; the 2024 layout `data/pancan_data/transcriptome/<p>_expid.txt`,
-`data/pancan_data/{rna,promoter}_features/` maps onto the workspace as shown):
+data/modeling/<p>_train.csv
+data/modeling/<p>_val.csv
+data/modeling/<p>_test.csv
+data/modeling/<p>_params.json
 
-| workspace path | content | produced by |
-|---|---|---|
-| `data/<p>_expid.txt` | tab-separated; first column `Name` (Ensembl gene ID), then one column per cancer type, last column `MedianExp` (the loader checks both names and subtracts `MedianExp` from the others; `n_out` = all non-`Name` columns incl. `MedianExp`) | `03_expr_process` |
-| `data/modeling/<p>_{train,val,test}.csv` | gene splits (tracked: `config/gene_split/`) | `03_expr_process/split_<p>_data.R` |
-| `data/modeling/<p>_params.json` | hyper-parameters (tracked: `config/`) | distributed; rewritten by `train.py` |
-| `results/rna_features/output_postar_rna.pkl`, `output_postar_rna_feature_name.txt.gz` | RBP binding bins | `01` + `02` (POSTAR3) |
-| `results/rna_features/output_targetscan_rna.pkl`, `output_targetscan_rna_feature_name.txt.gz` | miRNA target-site bins | `01` + `02` (TargetScan) |
-| `results/promoter_features/output_gtrd_promoter.pkl`, `output_gtrd_promoter_feature_name.txt.gz` | TF binding bins | `01` + `02` (GTRD) |
+results/rna_features/output_postar_rna.pkl
+results/rna_features/output_postar_rna_feature_name.txt.gz
 
-To skip training: `eval.py` loads `<outloc>best_model.pth` and every `<outloc>epoch<N>.pth` (N = 1..`-n`), so all
-epoch checkpoints from the "pretrained models" Drive folder of the 2024 README are needed in `<p>_model/reg0.001/`;
-`compute_shap.py` needs only `<p>_model/reg0.001/best_model.pth`. `feature_norm_stats.txt` is not an input: both
-scripts recompute it from the training split and `eval.py` rewrites `<outloc>feature_norm_stats.txt`
-(`utils/data_tool.py`, `prep_ml_data_split`); `summarize_SHAP.R` and the R plotting scripts then read that
-rewritten copy from `<p>_model/reg0.001/`.
+results/rna_features/output_targetscan_rna.pkl
+results/rna_features/output_targetscan_rna_feature_name.txt.gz
 
-`sample_data/pcawg_sample.zip` holds a small-gene-subset version of `pcawg_expid.txt` and of the six feature files
-(pkl + names) — not the gene splits or the parameter file — and can be used to check that the environment loads the
-inputs; no script depends on it.
-
-## 5. Running
-
-All commands below assume the workspace of section 3 and the `dexomics` environment. `<p>` = `pancanatlas` or `pcawg`.
-
-```bash
-# all blocks start from the repository root
-# 1-2. binding features (only if the pkl files are regenerated; see 01_run.sh for the exact arguments)
-cd pancancer
-Rscript 01_bed_to_RNA_coord.R -b ../../data/postar3/bed_rna -n 100 -g ../data/references_v8_gencode.v26.GRCh38.genes.gtf \
-        -t rna -o ../results/rna_features/output_postar_rna -s POSTAR3
-python 02_to_sparse.py ../results/rna_features/output_postar_rna.txt
-# (repeat with -s GTRD -t promoter -> ../results/promoter_features/output_gtrd_promoter, and -s TARGETSCAN -t rna -> output_targetscan_rna)
-
-# 3. expression target and gene splits (raw tables of section 4a required)
-cd 03_expr_process                         # i.e. <repo>/pancancer/03_expr_process
-Rscript get_<p>_exp.R && Rscript split_<p>_data.R
-
-# 4. training, evaluation, performance tables and figures  (from the repository root: cd pancancer/04_modeling)
-cd ../04_modeling                          # i.e. <repo>/pancancer/04_modeling
-python train.py ../../<p>_model/reg0.001/ -p <p> -bs 50 -n 100 -lr 0.001 -step 30 -reg 0.001
-python eval.py  ../../<p>_model/reg0.001/ -p <p> -n 100 -reg 0.001
-Rscript calc_performance.R <p>
-Rscript <p>_visual.R <p>
-
-# 5. attribution
-cd ../05_interpret                         # i.e. <repo>/pancancer/05_interpret
-python compute_shap.py ../../results/shap/ExpectedGrad_<p>/ -p <p>        # see section 7 on the explainer
-Rscript summarize_SHAP.R 0.001 <p> ../../results/shap/ExpectedGrad_<p>/   # args: l2 regularisation, project, SHAP directory
-Rscript shap_plot.R <p> ../../results/shap/ExpectedGrad_<p>/ ../../plots/
+results/promoter_features/output_gtrd_promoter.pkl
+results/promoter_features/output_gtrd_promoter_feature_name.txt.gz
 ```
 
-Output directories passed as arguments must end with `/` (the scripts concatenate file names to them).
+The train/validation/test splits and parameter files are tracked under:
 
-## 6. Outputs
-
-| step | files |
-|---|---|
-| `train.py` | `<p>_model/reg0.001/best_model.pth`, `epoch<N>.pth`, `feature_norm_stats.txt`; `plots/<p>_pretrained/train_val_loss_reg0.001.png`; rewrites `data/modeling/<p>_params.json` |
-| `eval.py` | `test_metrics_<p>/evaluation.csv` (per-epoch test PCOR), `actual.txt.gz`, `prediction.txt.gz`, `geneid.txt.gz`; `plots/<p>_pretrained/test_AUCs.png` |
-| `calc_performance.R` | `test_metrics_<p>/cor_tbl.txt` (per-cancer-type Spearman correlation) |
-| `<p>_visual.R` | `plots/<p>_spearman.pdf`, `<p>_combined_actual_pred.pdf`, `<p>_MedianExp_actual_pred.pdf`, `<p>_pairwise_heatmap*.{pdf,png}` (+ `<p>_system_spearman.pdf` for PanCanAtlas) |
-| `compute_shap.py` | `results/shap/<method>_<p>/RNA_<k>.txt.gz`, `DNA_<k>.txt.gz` (one per output cancer type `k`) |
-| `summarize_SHAP.R` | `results/shap/<method>_<p>/{RNA,promoter}_importance_mean.txt` |
-| `shap_plot.R` | `plots/*` summary figures |
-
-None of these are tracked by git.
-
-## 7. Differences from the published copy, and caveats
-
-* `compute_shap.py` contains both a DeepLIFT block (`shap.DeepExplainer`) and an Expected Gradients block
-  (`shap.GradientExplainer`); one of them is commented out with a `'''` string. In this recovered version the
-  **GradientExplainer block is active** and the DeepLIFT block is commented out; in the published copy
-  (`git show pre-restructure-2026:scripts/pan_cancer/compute_shap.py`) it is the other way round. The output file names are the
-  same for both methods, so the method is only identifiable from the output directory name used
-  (`05_run.sh` uses `DeepLIFT_<p>` and `ExpectedGrad_<p>`). Which method produced the manuscript values has to be
-  confirmed by the authors; the code was not changed here.
-* Function names differ from the published copy (`prep_ml_data_split`/`batch_iter`/`evaluate` here versus
-  `pancan_prep_ml_data_split`/`pancan_batch_iter`/`pancan_evaluate` there), the model definition
-  `interactome_CNN` is the same computation, and this version additionally writes the loss and PCOR plots.
-* `train.py` rewrites `data/modeling/<p>_params.json` in place (unchanged behaviour; the file now lives in the
-  workspace, so the clone stays clean).
-* `summarize_SHAP.R` takes three arguments here (`<l2_reg> <p> <dir>`), the published copy two (`<p> <dir>`).
-* `01_bed_to_RNA_coord.R` is the same script as the 2024 `scripts/01_bed_to_RNA_coord.R` with explicit
-  GTRD / TARGETSCAN / POSTAR3 branches for the regulator name; the `-s ENCODE` branch used by the 2024
-  cancer-specific study is still present.
-* `05_run.sh` and the file names written by `shap_plot.R` (`*_DeepLIFT_*.pdf`) label the results "DeepLIFT"
-  regardless of which explainer block is active in `compute_shap.py`. The label is not evidence of the method.
-* `environment.yml` was exported on Linux and pins Linux builds; on macOS create the environment from the package
-  list by hand (python 3.8, torch 1.13, shap 0.44, numpy 1.24, pandas 2.0, scikit-learn, scipy, matplotlib, seaborn).
-* Device handling, as written: `train.py`, `eval.py`, `compute_shap.py` and `utils/model_utils.py::evaluate` move the
-  input tensors to `cuda:0` when CUDA is available but never move the model, and read outputs with `.numpy()`
-  without `.cpu()`. On a CUDA machine this raises a device mismatch; on a machine without CUDA everything stays on
-  the CPU and runs (the server wrappers request a GPU, so the 2024 runs were either CPU runs or used a copy with the
-  model moved to the device — to be confirmed by the authors). `torch.load` is called without `map_location`.
-* `04_modeling/utils/generate_data.py` writes a synthetic 3-class demo table to `../../results/demo_*.csv` (relative
-  to the working directory `04_modeling/`); nothing reads it.
-
-## 8. Checks after cloning (no data needed)
-
-From the repository root, in the `dexomics` environment:
-
-```bash
-bash pancancer/setup_workspace.sh /tmp/pancancer_ws_check        # prints LINK/COPY lines, exits 0
-( cd pancancer/04_modeling && python -B -c 'import network, utils.data_tool, utils.model_utils' && python -B train.py --help >/dev/null && python -B eval.py --help >/dev/null )
-( cd pancancer/05_interpret && python -B -c 'import sys; sys.path.append("../04_modeling/"); import shap, network, utils.data_tool' && python -B compute_shap.py --help >/dev/null )
-Rscript -e 'for (f in list.files("pancancer", pattern = "[.]R$", recursive = TRUE, full.names = TRUE)) invisible(parse(file = f))'
+```text
+pancancer/config/
 ```
 
-With the processed bundle of section 4b in place, `eval.py` on the distributed checkpoints followed by
-`calc_performance.R` is the first end-to-end check; its `test_metrics_<p>/cor_tbl.txt` should reproduce the
-per-cancer-type correlations of the 2024 metrics folder.
+The remaining processed data were distributed separately with the original study and are not tracked by Git.
+
+`<p>_expid.txt` contains the expression target matrix. The first column is `Name`, followed by cancer-type expression columns and a `MedianExp` column.
+
+### 4.2 Raw-data regeneration
+
+The repository also retains the upstream scripts used to construct the processed features:
+
+```text
+01_bed_to_RNA_coord.R
+02_to_sparse.py
+03_expr_process/
+```
+
+These scripts depend on external resources that are not fully reproduced by this repository, including:
+
+- GENCODE gene annotation
+- POSTAR3 RBP binding regions
+- GTRD TF binding regions
+- TargetScan miRNA target regions
+- PanCanAtlas expression and clinical tables
+- PCAWG expression and metadata tables
+- regulator gene lists used by the split scripts
+- a historical TCGA-LIHC expression object used for gene annotation
+
+Therefore, regeneration from raw inputs should currently be considered an archival workflow rather than the primary supported entry point.
+
+Historical preprocessing code can be inspected through:
+
+```bash
+git show pre-restructure-2026:<path>
+```
+
+## 5. Running the processed-data workflow
+
+Commands below assume that the workspace has been prepared and the required processed inputs are available.
+
+### Training and evaluation
+
+From the repository root:
+
+```bash
+cd pancancer/04_modeling
+```
+
+Train PanCanAtlas:
+
+```bash
+python train.py ../../pancanatlas_model/reg0.001/ \
+    -p pancanatlas \
+    -bs 50 \
+    -n 100 \
+    -lr 0.001 \
+    -step 30 \
+    -reg 0.001
+```
+
+Evaluate:
+
+```bash
+python eval.py ../../pancanatlas_model/reg0.001/ \
+    -p pancanatlas \
+    -n 100 \
+    -reg 0.001
+```
+
+Calculate per-cancer-type performance and generate figures:
+
+```bash
+Rscript calc_performance.R pancanatlas
+Rscript pancanatlas_visual.R pancanatlas
+```
+
+For PCAWG, replace `pancanatlas` with `pcawg`:
+
+```bash
+python train.py ../../pcawg_model/reg0.001/ \
+    -p pcawg \
+    -bs 50 \
+    -n 100 \
+    -lr 0.001 \
+    -step 30 \
+    -reg 0.001
+
+python eval.py ../../pcawg_model/reg0.001/ \
+    -p pcawg \
+    -n 100 \
+    -reg 0.001
+
+Rscript calc_performance.R pcawg
+Rscript pcawg_visual.R pcawg
+```
+
+Output directory arguments must end with `/` because the original scripts construct file paths by string concatenation.
+
+## 6. Attribution analysis
+
+From:
+
+```bash
+cd pancancer/05_interpret
+```
+
+the recovered server version currently uses SHAP `GradientExplainer` (Expected Gradients):
+
+```bash
+python compute_shap.py ../../results/shap/ExpectedGrad_<p>/ -p <p>
+
+Rscript summarize_SHAP.R \
+    0.001 \
+    <p> \
+    ../../results/shap/ExpectedGrad_<p>/
+
+Rscript shap_plot.R \
+    <p> \
+    ../../results/shap/ExpectedGrad_<p>/ \
+    ../../plots/
+```
+
+Example for PanCanAtlas:
+
+```bash
+python compute_shap.py ../../results/shap/ExpectedGrad_pancanatlas/ \
+    -p pancanatlas
+```
+
+## 7. Main outputs
+
+Training creates:
+
+```text
+<p>_model/reg0.001/best_model.pth
+<p>_model/reg0.001/epoch<N>.pth
+<p>_model/reg0.001/feature_norm_stats.txt
+```
+
+Evaluation creates:
+
+```text
+test_metrics_<p>/evaluation.csv
+test_metrics_<p>/actual.txt.gz
+test_metrics_<p>/prediction.txt.gz
+test_metrics_<p>/geneid.txt.gz
+test_metrics_<p>/cor_tbl.txt
+```
+
+Visualization scripts write figures under:
+
+```text
+plots/
+```
+
+Attribution analysis writes per-output SHAP values under:
+
+```text
+results/shap/<method>_<p>/
+```
+
+and summary importance tables such as:
+
+```text
+RNA_importance_mean.txt
+promoter_importance_mean.txt
+```
+
+Generated data, checkpoints, metrics, SHAP values, and plots are not tracked by Git.
+
+## 8. Historical implementation differences
+
+The recovered server project and the copy originally published in the repository are not identical.
+
+The most important difference concerns the attribution method.
+
+In the recovered version:
+
+```text
+shap.GradientExplainer
+```
+
+is active, corresponding to Expected Gradients.
+
+In the pre-restructuring published copy:
+
+```text
+shap.DeepExplainer
+```
+
+is active.
+
+The historical version can be inspected with:
+
+```bash
+git show pre-restructure-2026:scripts/pan_cancer/compute_shap.py
+```
+
+The two implementations write similarly named output files, so file names alone cannot establish which attribution method generated a historical result. This provenance question should be resolved before the attribution results are treated as final manuscript outputs.
+
+Other implementation differences include:
+
+- renamed data-loader and evaluation helper functions;
+- additional training-loss and correlation plots in the recovered version;
+- different argument signatures for `summarize_SHAP.R`;
+- the recovered `01_bed_to_RNA_coord.R` contains explicit GTRD, TargetScan, and POSTAR3 source branches.
+
+These differences are documented here rather than silently harmonized.
+
+## 9. Current technical caveats
+
+The recovered Python code retains its original device-handling behavior.
+
+Several scripts move input tensors to `cuda:0` when CUDA is available, while model placement and NumPy conversion are not handled consistently. This may cause CPU/GPU device mismatches on CUDA systems.
+
+The current code should therefore be treated as the recovered implementation rather than a fully modernized GPU-compatible package.
+
+This behavior will be addressed separately from repository restructuring so that scientific and infrastructural changes remain distinguishable.
+
+## 10. Basic checks
+
+After creating the environment, the following checks can be performed without running the full analysis:
+
+```bash
+bash pancancer/setup_workspace.sh /tmp/pancancer_ws_check
+```
+
+Python imports:
+
+```bash
+cd pancancer/04_modeling
+
+python -B -c \
+'import network, utils.data_tool, utils.model_utils'
+
+python -B train.py --help >/dev/null
+python -B eval.py --help >/dev/null
+```
+
+Attribution imports:
+
+```bash
+cd ../05_interpret
+
+python -B -c \
+'import sys; sys.path.append("../04_modeling/"); import shap, network, utils.data_tool'
+
+python -B compute_shap.py --help >/dev/null
+```
+
+R syntax check from the repository root:
+
+```bash
+Rscript -e \
+'for (f in list.files("pancancer", pattern="[.]R$", recursive=TRUE, full.names=TRUE)) invisible(parse(file=f))'
+```
+
+With the processed input bundle and historical checkpoints available, the most informative reproducibility check is:
+
+```text
+eval.py
+→ calc_performance.R
+→ compare test_metrics_<p>/cor_tbl.txt with the original distributed metrics
+```
